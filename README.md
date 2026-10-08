@@ -1,4 +1,4 @@
-# CutDialog
+# AiDashVideo
 
 An open-source, AI-directed video editor for common Premiere-style editing workflows.
 Describe the changes you want through conversation, preview the results, and refine your edit while keeping the original media intact.
