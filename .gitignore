@@ -1,10 +1,293 @@
-.local/
+# AiDashVideo .gitignore
+#
+# Conventions this file assumes (keep them when implementing later milestones):
+#   .local/            one ignored root for everything operator-local: acquired model weights and
+#                      their upstream LICENSE files (.local/models/), upstream clones and out-of-tree
+#                      native builds (.local/src/, .local/native/), runtime state when running from
+#                      a checkout (.local/var/: db, cas, staging, outbox, run, log, projects),
+#                      generated fixtures and annotations (.local/fixtures/), scratch output of melt /
+#                      ffmpeg / sam3 / whisper runs (.local/scratch/), remote-adapter credentials
+#                      (.local/credentials/), redirected HOME/XDG/HF/TORCH caches (.local/home/),
+#                      and the operator-controlled evidence store (.local/evidence/).
+#   docs/evidence/     committed milestone reports and small text/JSON manifests only. Media, frames,
+#                      overlays and other binaries referenced by a report live in the local evidence
+#                      store; a "raw/" subdirectory or a "local" symlink there is always ignored.
+#   docs/implementation/  private operator briefs, deliberately never published.
+#
+# Editing rules: never add a global rule for *.lock (uv.lock), *.json, *.jsonl, *.xml, *.sql, *.ts,
+# *.png, *.svg, *.csv, *.txt, *.md, *.srt or *.vtt, and never ignore .python-version. APFS folds
+# case, so a rule such as "core" or "Testing/" would hide a same-named package here but not on Linux;
+# anchor or suffix such rules. Re-include with "!" directly below the rule it relaxes.
+
+# ---------------------------------------------------------------------------
+# 1. Local-only roots and root-level staging guards
+# ---------------------------------------------------------------------------
+/.local/
+/docs/implementation/
+/docs/evidence/**/raw/
+/docs/evidence/local
+/tests/fixtures/generated/
+.aidashvideo/
+/var/
+/tmp/
+/scratch/
+/models/
+/checkpoints/
+/weights/
+/fixtures/
+# upstream clones cloned at the repo root instead of .local/src/
+/whisper.cpp/
+/sam3.cpp/
+/mlt/
+/ffmpeg/
+/third_party/**/build/
+/vendor/**/build/
+# stray outputs tools drop into the current directory when run from the repo root
+/*.png
+/*.patch
+/*.diff
+/junit*.xml
+/profile.*
+nohup.out
+
+# ---------------------------------------------------------------------------
+# 2. Python toolchain: uv, bytecode, pytest, Ruff, type checkers, coverage, packaging, profilers
+# ---------------------------------------------------------------------------
+/.venv*/
+/.uv-cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+.hypothesis/
+.benchmarks/
+.coverage
+.coverage.*
+htmlcov/
+/coverage.xml
+/coverage.json
+/coverage.lcov
+*.py,cover
+/dist/
+/build/
+*.egg-info/
+*.whl
+*.prof
+*.pstats
+*.lprof
+memray-*
+*.speedscope.json
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------------------
+# 3. Native builds: whisper.cpp, sam3.cpp, MLT or binding builds (CMake / Ninja / Xcode / Metal / CoreML)
+# ---------------------------------------------------------------------------
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+CMakeLists.txt.user*
+/Testing/
+_deps/
+build.ninja
+.ninja_deps
+.ninja_log
+compile_commands.json
+*.o
+*.o.d
+*.a
+*.so
+*.so.*
+*.dylib
+*.pch
+*.air
+*.metallib
+*.dSYM/
+xcuserdata/
+DerivedData/
+.ccache/
+.sccache/
+
+# ---------------------------------------------------------------------------
+# 4. Model weights, provider caches, conversion intermediates, partial downloads
+#    (SAM 3 and EdgeTAM weights carry their own license terms and must never be redistributed here)
+# ---------------------------------------------------------------------------
+*.gguf
+*.ggml
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.onnx
+*.onnx.data
+*.mlmodel
+*.mlmodelc/
+*.mlpackage/
+*.npy
+*.npz
+*.pkl
+*.pickle
+.cache/
+models--*/
+.locks/
+*.part
+*.partial
+*.incomplete
+*.aria2
+*.crdownload
+*.download
+
+# ---------------------------------------------------------------------------
+# 5. Media: fixtures, previews, exports, frame dumps, raw intermediates, annotation projects, archives
+#    (uppercase twins keep a case-sensitive Linux clone in step with this Mac)
+# ---------------------------------------------------------------------------
+*.mp4
+*.MP4
+*.m4v
+*.mov
+*.MOV
+*.mkv
+*.webm
+*.avi
+*.mxf
+*.nut
+*.y4m
+*.yuv
+*.rgb
+*.raw
+*.pcm
+*.wav
+*.WAV
+*.flac
+*.m4a
+*.aac
+*.mp3
+*.aif
+*.aiff
+*.aifc
+*.ogg
+*.opus
+*.m3u8
+*.m4s
+*.mpd
+*.ppm
+*.pgm
+*.pam
+*.jpg
+*.jpeg
+*.JPG
+*.webp
+*.tif
+*.tiff
+*.TextGrid
+*.aup3*
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+*.dmg
+*.pdf
+
+# ---------------------------------------------------------------------------
+# 6. MLT / FFmpeg derived state and tool logs
+#    (MLT XML is derived execution state, never project authority; tests may commit tiny goldens)
+# ---------------------------------------------------------------------------
+*.mlt
+!/tests/**/*.mlt
+*.mlt~
+*.kdenlive
+*.log
+*.log.*
+!/tests/**/*.log
+ffmpeg2pass-*
+*_2pass.log*
+*.mbtree
+*.cutree
+*.trf
+*.ffindex
+*.lwi
+
+# ---------------------------------------------------------------------------
+# 7. Durable store, staged blobs, supervisor run files, crash dumps
+#    (the canonical store and content-addressed blobs live under .local/var/ or a granted project dir;
+#     these are safety nets for databases opened elsewhere. Add the portable snapshot extension here
+#     once contracts.md fixes it.)
+# ---------------------------------------------------------------------------
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.pid
+*.sock
+*.ips
+*.crash
+core.[0-9]*
+*.trace/
+*.gputrace/
+*.bak
+*.tmp
+*.orig
+*.rej
+
+# ---------------------------------------------------------------------------
+# 8. Secrets, grants, credentials, key material, licensed fonts, local config overlays
+# ---------------------------------------------------------------------------
 .env
 .env.*
-.DS_Store
-.venv/
-__pycache__/
-*.pyc
+!.env.example
+!.env.sample
+*.env
+.envrc
+/.direnv/
+.netrc
+secrets/
+credentials*.json
+*.token
+*.pem
+*.key
+*.p12
+*.pfx
+*.keychain-db
+# fonts are referenced by identity in docs/plan/runtime-profile.json; vendoring one is a license decision
+*.ttf
+*.otf
+*.ttc
+*.dfont
+# agent and editor local overlays (the shared .claude/settings.json and CLAUDE.md stay tracked)
+/.claude/settings.local.json
+/.claude/worktrees/
+CLAUDE.local.md
+*.local.json
+*.local.toml
 
-# Local-only implementation instructions
-/docs/implementation/
+# ---------------------------------------------------------------------------
+# 9. macOS host and editor noise
+# ---------------------------------------------------------------------------
+.DS_Store
+._*
+__MACOSX/
+*.swp
+*.swo
+*~
+.idea/
+*.code-workspace
+/.vscode/*
+!/.vscode/settings.json
+!/.vscode/extensions.json
+!/.vscode/launch.json
+!/.vscode/tasks.json
+
+# ---------------------------------------------------------------------------
+# 10. UI toolkit (decision pending). Harmless now; extend when the player/chat client is chosen.
+#     Web view: add .vite/, *.tsbuildinfo, .eslintcache, test-results/ under the UI workspace.
+#     Qt: add *.qm, *.qmlc, *.jsc.
+# ---------------------------------------------------------------------------
+node_modules/
+playwright-report/
+blob-report/
