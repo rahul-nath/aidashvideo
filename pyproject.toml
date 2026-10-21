@@ -1,0 +1,79 @@
+[project]
+name = "aidashvideo"
+version = "0.0.0"
+description = "Open-source, AI-directed local video editor (MLT timeline, FFmpeg media jobs, SAM 3 / SAM 3.1 subject analysis)."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+# Target runs CPython 3.14 (.python-version); 3.12 is admitted so the Linux sandbox (no interpreter
+# downloads) can run the same code: `UV_PYTHON=3.12 uv sync --locked`.
+requires-python = ">=3.12,<3.15"
+# Core boot and project inspection use the standard library only (I10, V14):
+# every provider lives in an extra and is imported lazily by its adapter.
+dependencies = []
+
+[project.optional-dependencies]
+# The only mask profile (D5): SAM 3.1 through mlx-vlm on Apple Silicon Metal (operator's M1 Pro).
+# The mlx-community/sam3.1-bf16 model card names mlx-vlm (converted with 0.4.3; the
+# `mlx_vlm.models.sam3_1` multiplex tracker is the implementation the adapter wraps).
+sam31-mlx = [
+    "mlx-vlm==0.7.8 ; sys_platform == 'darwin'",
+    "mlx>=0.32.3 ; sys_platform == 'darwin'",
+    "numpy>=2.3.5",
+    "pillow>=12.2",
+]
+
+[project.scripts]
+aidashvideo-doctor = "aidashvideo.catalog.doctor:main"
+aidashvideo-models = "aidashvideo.catalog.models:main"
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "ruff==0.17.0",
+    "pyright[nodejs]==1.1.414",
+    # Used by scripts/build_frozen_toolchain.sh (Linux sandbox rootless toolchain RUNPATHs).
+    "patchelf==0.19.1.0 ; sys_platform == 'linux'",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aidashvideo"]
+
+[tool.uv]
+default-groups = ["dev"]
+# Never let uv fetch a managed CPython: the interpreter is part of the pinned profile.
+# Managed interpreters already present on the host (uv python list) may be used; the target
+# Mac has no system CPython 3.14.
+python-downloads = "never"
+python-preference = "managed"
+
+[tool.ruff]
+line-length = 100
+extend-exclude = [".deps", "var"]
+target-version = "py312"  # lowest supported interpreter (sandbox); target runs 3.14
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.pyright]
+include = ["src", "tests", "scripts"]
+pythonVersion = "3.12"  # lowest supported interpreter; nothing 3.13+-only may enter
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
+reportMissingTypeStubs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+xfail_strict = true
+markers = [
+    "boot: import/boot isolation smoke tests (child interpreter with -I and tripwires)",
+    "plan: consistency checks over docs/plan and the evidence report",
+    "live: exercises the installed toolchain and admitted models on this host (skips with the exact blocker when absent)",
+]

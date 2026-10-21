@@ -3,7 +3,7 @@
 ## 1. Task description
 
 AiDashVideo is a standalone local video editor controlled through conversation, with immutable source media and a versioned project as its authority.
-MLT evaluates the timeline and supplies playback/export; FFmpeg supplies explicit media jobs; timed speech and separately qualified SAM 3/EdgeTAM adapters supply analysis.
+MLT evaluates the timeline and supplies playback/export; FFmpeg supplies explicit media jobs; timed speech and a separately qualified SAM 3.1 MLX adapter supply analysis.
 Work only in this repository, using one AI implementer and the files produced by earlier milestones; do not require AiDashOS, private modules, a hidden daemon or previous chat history.
 Inspect existing work first, preserve unrelated changes, and implement only this milestone.
 Do not download/install packages or models, access new credentials, transfer media/prompts, spend, change shared services, overwrite originals, publish, push or merge without the operator's separate explicit authorization.
@@ -18,6 +18,9 @@ One AI may prepare and run the checks, but describe this as verification perform
 The human approval gate remains Milestone 7.
 
 Use installed tools via `uv run --offline --no-sync` and the exact commands fixed in the plan.
+Run from the actual aidashvideo root with the declared installed Python/toolchain and working-directory/configuration prerequisites.
+Verify intended nonempty test collection and retain exact pytest, Ruff and Pyright command/source results; absent tools, dependencies or layout mismatches are blockers, never placeholder success or weakened checks.
+When linked-project registration is used, verify its declared commands match these actual root/environment/configuration requirements without requiring AiDashOS for standalone execution.
 Run focused tests, Ruff/Pyright, real native/provider integration, UI walkthrough, output probes/full decode and perceptual checks.
 Missing dependencies, footage annotations, host capability, grants or tools are exact blockers; do not fetch anything or replace a required provider with a mock.
 Fix in-scope discovered defects in reviewable changes, rerun affected/dependent checks, and bind final evidence to the final candidate.
@@ -25,7 +28,7 @@ Source changes invalidate stale evidence where the change can affect the tested 
 
 Use the following complete golden path, preserving its assets, messages, expected duration and reset:
 
-GP-01 caller: a local editor on the pinned Mac MLT/FFmpeg core profile with a separately qualified SAM backend, existing licensed model assets and a grant limited to one disposable project directory.
+GP-01 caller: a local editor on the pinned Mac MLT/FFmpeg core profile with a qualified local SAM 3.1 MLX backend, existing licensed model assets and a grant limited to one disposable project directory.
 Prepare local synthetic or operator-owned `interview.mp4` (12 seconds, one visible consenting subject, spoken phrase "hello golden path" at seconds 2-4), `broll.mp4` (4 seconds) and `music.wav` (20 seconds); retain hashes and probe results instead of assuming codec or timing support.
 
 1. Choose New Project, select the granted directory, Import the three files and choose SDR Rec.709, 1920x1080, 30 fps; inspect each source identity, stream probe and initial project revision.
@@ -39,7 +42,7 @@ Prepare local synthetic or operator-owned `interview.mp4` (12 seconds, one visib
 
 This milestone's GP-01 verification reuses these exact three assets and messages, then tests missing transcript timing, lost mask interval, stale revision and interrupted export; quality checks include actual preview/export frames and audio.
 For the reset, reopen the initial revision for inspection or a new explicitly admitted edit lineage; do not rewind or delete canonical history.
-All editor actions are proposed contracts and unexecuted here; qualifying the SAM host/backend is a blocking prerequisite for subject-aware acceptance, not evidence supplied by compilation.
+All editor actions are proposed contracts and unexecuted here; qualifying the SAM 3.1 MLX host/backend is a blocking prerequisite for subject-aware acceptance, not evidence supplied by compilation.
 
 The full acceptance matrix is embedded here so this milestone does not require the original CGD or previous chat:
 
@@ -52,18 +55,18 @@ The full acceptance matrix is embedded here so this milestone does not require t
 | V05 | Repeated phrase, segment-only timing, silence, recognition error and failed inference with zero FFmpeg exit | Explicit span selection or refusal; no fabricated word time, transcript success or no-speech result |
 | V06 | Word-alignment qualification | Against human-marked local samples, at least 95% of nominated word boundaries within 100 ms; failures remain preview/correction-only, with no precision claim outside the qualified footage/language profile |
 | V07 | SAM occlusion, similar people, exit/re-entry, shot cut and correction | No accepted identity switch; questionable spans require correction; quality report includes boundary flicker and retained mask overlays |
-| V08 | Qualified SAM 3 and EdgeTAM quality, independently | Median mask IoU at least 0.90 and fifth percentile at least 0.80 on the agreed annotated visible-subject frames, plus no visible unacceptable halo/flicker in operator-reviewed clips; flagged loss intervals reported separately and cannot count as successful coverage |
+| V08 | Qualified SAM 3.1 MLX mask quality | Median mask IoU at least 0.90 and fifth percentile at least 0.80 on agreed annotated visible-subject frames for text/visual selections, corrections and multi-object cases; no unacceptable halo/flicker in operator-reviewed clips; flagged loss is reported separately and cannot count as successful coverage |
 | V09 | Deterministic edit replay, two concurrent clients and stale chat reply | Same validated patch produces the same project/graph hashes; one concurrent head update wins; stale writer and conflicting idempotency key fail without mutation |
-| V10 | Corrupted cache, replaced/missing source, original modified during render and incompatible project version | No stale cache reuse or wrong-media render; render consumes exactly the verified stable snapshot or fails; verified relink/migration required; previous history preserved |
+| V10 | Corrupted cache, replaced/missing source, original modified during render and incompatible project version | No wrong-source or corrupt-mask reuse; render uses the verified stable source snapshot or fails; source/profile/precision/selection/correction changes cannot match old analysis; verified relink/migration preserves prior history |
 | V11 | Metacharacters in captions/paths, network URLs and symlink races | Correct literal text or refusal; no unintended command, network request or access outside grants |
 | V12 | Crash at payload seal, head commit, render, output publish and receipt admission | One admitted revision/effect; orphan staging has no authority; published outputs are adopted only with matching proof |
 | V13 | Cancel during render, concurrent export, source-alias destination and disk/GPU exhaustion | Bounded owned-process cleanup, retained last good result, explicit published-race outcome, no original/foreign file deletion; even an overwrite grant cannot authorize a source-alias destination |
-| V14 | Clean boot without optional packages; denied download/egress; unavailable SAM host | Core boot/project inspection works; unavailable feature reported truthfully; no implicit install, upload, provider switch or shared model swap |
+| V14 | Clean boot without optional packages; denied download/egress; unavailable SAM 3.1 MLX backend | Core boot/project inspection works; unavailable feature reported truthfully; no implicit install, upload, provider switch or shared model swap |
 | V15 | Real preview/export correctness | Full decode passes; duration within one output frame; dimensions, rotation, rate, color tags, channel layout and sample rate match profile; synthetic audio agrees within one sample before lossy encoding; perceptual checks cover transitions, sync, titles, captions and masks |
 | V16 | Audio delivery | A profile declaring -16 LUFS and -1 dBTP passes integrated loudness within 1 LU and measured true peak at or below -1 dBTP; other explicit delivery profiles use their own retained targets |
-| V17 | Repeat/interrupted optional installation, missing grant and failed Metal initialization | Matching assets are reused; partial files never become ready; previous working profile survives; missing acquisition grant causes no download; CPU fallback cannot be labeled Metal-qualified |
-| V18 | Model choice, switch, missing profile and memory pressure | Both profiles run real matched fixtures; explicit profile identity survives reload/export; no automatic fallback, mixed cache reuse or simultaneous residency beyond the declared budget; unload/reload preserves masks |
-| V19 | EdgeTAM direct selection and chat-proposed selection | Validated frame-bound visual prompts work; unresolved text and incorrect coordinate mappings are rejected; no extra VLM is required for manual point/box input |
+| V17 | Offline asset setup, missing tokenizer/model, corrupt files and failed Metal initialization | Complete pinned checkpoint/config/tokenizer/runtime assets run with denied egress and HF_HUB_OFFLINE=1; empty, incomplete or corrupt stores return Unavailable without fetching; repeated/interrupted setup preserves verified assets; actual execution is Metal and no CPU fallback is labeled qualified |
+| V18 | SAM 3.1 MLX profile identity, residency and durable per-object masks | Exact profile/source/subject/PTS/precision bindings survive save/reopen/export; restart or model eviction reuses verified masks without inference; blur strength, titles, cuts, reorder and repeated occurrences preserve valid source masks; corrections invalidate affected propagation/dependents and missing ranges remain pending |
+| V19 | SAM 3.1 MLX text/visual selection, interactive correction and fresh-frame tracking | Direct positive/negative points/boxes and native text produce confirmed or explicitly all-matching subject identities; ambiguous subjects require choice; correction and multi-object propagation use ordered actual source PTS/current-frame features; no skipped or stale-feature frame counts as qualified coverage; manual selection requires no extra VLM |
 | V20 | Edits during delayed analysis, rapid blur changes and preview cancellation | Durable revisions survive restart before inference completes; independent edits remain available; unchanged mask dependencies run once; old output stays visibly stale and cannot replace a newer requested preview |
 | V21 | Deferred export, uncached masks and preview/export agreement | No full-sequence encoding on ordinary edits; partial previews include required context; missing masks stay pending; export binds the selected revision/profile and cached mask identities, preserves sources and writes a separate file |
 | V22 | Complete MLT package coverage | Frozen inventory reconciles with the installed build; every included editing service and parameter has a callable descriptor, read/change/reopen coverage and retained behavior evidence, including actual frame/audio changes; missing metadata/dependencies block full-profile qualification |
@@ -94,7 +97,7 @@ Verify these invariants across the matrix:
 
 Retain complete build/service/parameter coverage rather than extrapolating from a few effects.
 Capture successful controls alongside refusal tests so an editor that refuses all edits cannot pass.
-Keep core, complete MLT package, timed speech/alignment, real chat, SAM 3 and EdgeTAM qualification independently inspectable.
+Keep core, complete MLT package, timed speech/alignment, real chat, SAM 3.1 MLX qualification independently inspectable.
 Only explicitly excluded non-v1 capabilities may be marked not applicable with rationale; missing required work is not an exclusion.
 Do not lower thresholds or narrow the frozen package after seeing failures; any contract change requires the operator's explicit decision and renewed evidence.
 
@@ -102,14 +105,15 @@ Do not lower thresholds or narrow the frozen package after seeing failures; any 
 
 - GP-01 and every applicable matrix row have observed results, command/UI steps, expected/actual comparison, artifacts and named candidate/environment identities.
 - All I1-I12 requirements hold; each refusal case has a corresponding working control.
-- Real media passes full decode, stream/profile/timing validation and visual/auditory inspection; actual speech and both real mask profiles meet their stated thresholds.
+- Real media passes full decode, stream/profile/timing validation and visual/auditory inspection; actual speech and the real SAM 3.1 MLX mask profile meet their stated thresholds.
 - Candidate-bound offline tests, Ruff/Pyright and UI integration checks pass; mocks prove control logic only and are not provider qualification.
 - Retain missing proofs and limitations separately, including any unqualified alignment/profile/service, and do not label a partial pass full v1.
 
 Measure these separately on named hardware:
 
 - Edit admission and queue delay; model load; first usable fresh-frame mask; full-range masks; cached/uncached preview; full-export throughput; RAM/VRAM/scratch use; cache hits.
-- Matched SAM 3 versus EdgeTAM on the same source frames, subjects, resolution, correction protocol and measured quality; chat selection time separately from tracking.
+- SAM 3.1 MLX text/visual selection, correction and multi-object tracking on fresh source frames at the declared resolution/dtype; separately measure cold asset loading, model residency, full source-PTS coverage and durable-mask reuse without inference.
+- Complete local asset setup under denied egress, including missing tokenizer/model and corrupt stores; restart/eviction and source/profile/selection/correction changes exercise persistent cache identity and invalidation.
 - Remaining analysis based on actual missing source-frame coverage, observed uncached throughput and required temporal context; cold estimates marked provisional.
 - MLT frame-preview startup, seek latency, buffer depth, dropped frames and sustained playback rate separately from encoded-range completion.
 
@@ -130,7 +134,7 @@ Record the candidate commit and dirty diff/file hashes, exact commands and exit 
 For media/provider milestones, include inspectable output and visual/auditory findings, not just test counts.
 Keep sensitive fixtures and large media out of Git; reference their operator-controlled local evidence store and record consent/availability.
 Use `PASS` only when this milestone's required completion criteria have actual evidence; otherwise report `BLOCKED` or `FAIL` and the smallest missing proof.
-Separate core, complete packaged MLT, timed speech, SAM 3 and EdgeTAM readiness rather than collapsing them into one success flag.
+Separate core, complete packaged MLT, timed speech and SAM 3.1 MLX readiness rather than collapsing them into one success flag.
 Commit only this milestone's authorized files locally if instructed, record their identity, and stop before the next milestone.
 
 ## 3. Other notes for a reviewer

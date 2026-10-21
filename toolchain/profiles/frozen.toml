@@ -1,0 +1,37 @@
+# FROZEN TARGET PROFILE (planned identities) - mirrors docs/plan/runtime-profile.json.
+# `aidashvideo-doctor` compares the host against these version/capability requirements and reports
+# Verified | Missing | Conflicting. It never upgrades, downloads or falls back.
+#
+# Target host: operator's MacBook Pro (Apple M1 Pro, 16 GB unified memory, macOS, arm64).
+# Upstream identities are the latest mutually compatible set, taken from Debian sid
+# (MLT 7.42.0-1 is built against FFmpeg 7:9.0.2; python3-mlt 7.42.0 targets CPython 3.14).
+
+[profile]
+id = "frozen"
+kind = "planned"
+os = "Darwin"
+machine = "arm64"
+
+[python]
+version = "3.14"
+
+[ffmpeg]
+# FFmpeg 9.0.2 built with --enable-gpl --enable-libx264 --enable-libass --enable-whisper
+# (whisper.cpp 1.9.5 / ggml 0.26.0). Debian's own 9.0.2 build has NO whisper filter.
+version = "9.0.2"
+# Target build (scripts/build_toolchain_macos.sh; Linux sandbox: build_frozen_toolchain.sh); relative to .deps
+install = "frozen/bin/ffmpeg"
+required_encoders = ["libx264", "aac", "pcm_s16le", "pcm_s24le", "png"]
+required_decoders = ["h264", "hevc", "aac", "pcm_s16le", "mp3", "prores"]
+required_filters = [
+    "whisper", "boxblur", "gblur", "alphamerge", "overlay", "scale", "fps", "setpts", "trim",
+    "atrim", "concat", "amix", "sidechaincompress", "volume", "loudnorm", "ebur128",
+    "drawtext", "subtitles", "ass", "silencedetect", "aresample", "showinfo", "astats",
+]
+required_muxers = ["mp4", "mov", "matroska", "wav", "framemd5", "null"]
+
+[mlt]
+version = "7.42.0"
+profile_id = "mlt-7.42.0-frozen"
+install = "frozen"           # .deps/frozen/profile.json written by scripts/build_frozen_toolchain.sh
+lock = ""

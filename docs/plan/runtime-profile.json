@@ -1,0 +1,912 @@
+{
+ "schema": "aidashvideo.runtime-profile/2",
+ "frozen_at": "2026-10-21",
+ "readiness_semantics": {
+  "Verified": "the exact planned identity is installed on the named target host, has retained evidence and passed a functional check",
+  "Missing": "no target-host evidence exists; sandbox observations, if any, are listed under `observed` and do not count",
+  "Conflicting": "target-host or sandbox evidence contradicts the planned identity, or the identity itself is unresolved",
+  "note": "Version and required-capability pins decide Verified; build digests (FFmpeg capability, MLT service catalog) are recorded as observed facts of a host build and are not pinned (operator decision D11, 2026-10-21)."
+ },
+ "hosts": {
+  "target": {
+   "id": "macbook-pro-m1pro-16gb",
+   "description": "macbook-pro-m1pro-16gb (macOS 27 arm64, Apple M1 Pro, 8 cores, 16 GB unified memory)",
+   "role": "qualified host for every Verified claim and all M6 measurements",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md"
+  },
+  "sandbox": {
+   "id": "linux-sandbox",
+   "description": "linux-sandbox (Ubuntu 24.04, x86_64, 4 vCPU, no GPU, no root)",
+   "role": "domain/engine/speech development with the Linux build of the same identities; never a source of target evidence; cannot run sam31-mlx",
+   "kernel": "Linux 6.18.44 x86_64",
+   "glibc": "2.39",
+   "evidence": "docs/evidence/milestone-0-sandbox-2026-10-18.md"
+  }
+ },
+ "planned": {
+  "python": {
+   "version": "3.14 (target, uv-managed CPython 3.14.7)",
+   "sandbox": "3.12 (system CPython 3.12.3); code must run on both; ruff/pyright target 3.12",
+   "uv": ">=0.9.10 (target 0.12.11, sandbox 0.9.10)",
+   "python_downloads": "never",
+   "python_preference": "managed",
+   "run_form": "uv run --offline --no-sync"
+  },
+  "ffmpeg": {
+   "version": "9.0.2",
+   "reference_identity": "Debian sid source ffmpeg 7:9.0.2-3 (binary ffmpeg_9.0.2-3_amd64.deb sha256 e333dd6025e2bd7dcca55c6be02d2cd466dd55fc641f154c1441a455547196ae)",
+   "build": "custom build required: --enable-gpl --enable-version3 --enable-shared --enable-libx264 --enable-libass --enable-libfreetype --enable-libfontconfig --enable-libharfbuzz --enable-libfribidi --enable-libvorbis --enable-whisper (Debian's 7:9.0.2-3 has no whisper; Homebrew's 9.0.2_1 has neither whisper nor libass/freetype/fontconfig/harfbuzz/fribidi)",
+   "shared_libraries": {
+    "libavcodec": 63,
+    "libavformat": 63,
+    "libavfilter": 12,
+    "libavutil": 61,
+    "libswresample": 7,
+    "libswscale": 10
+   },
+   "required_filters": [
+    "whisper",
+    "boxblur",
+    "gblur",
+    "alphamerge",
+    "overlay",
+    "scale",
+    "fps",
+    "setpts",
+    "trim",
+    "atrim",
+    "concat",
+    "amix",
+    "sidechaincompress",
+    "volume",
+    "loudnorm",
+    "ebur128",
+    "drawtext",
+    "subtitles",
+    "ass",
+    "silencedetect",
+    "aresample",
+    "showinfo",
+    "astats"
+   ],
+   "required_encoders": [
+    "libx264",
+    "aac",
+    "pcm_s16le",
+    "pcm_s24le",
+    "png"
+   ],
+   "required_decoders": [
+    "h264",
+    "hevc",
+    "aac",
+    "pcm_s16le",
+    "mp3",
+    "prores"
+   ],
+   "required_muxers": [
+    "mp4",
+    "mov",
+    "matroska",
+    "wav",
+    "framemd5",
+    "null"
+   ],
+   "capability_digest": "observed per build by aidashvideo-doctor (facts.capability_sha256); not pinned"
+  },
+  "whisper_cpp": {
+   "version": "1.9.5",
+   "reference_identity": "Debian sid whisper.cpp 1.9.5+dfsg-1 (libwhisper1 sha256 9d44352baa73b79d34d0fe56ad21ab7c4cc45b60b11cf7e37067965ce5e02ea7)",
+   "ggml": "0.26.0 (libggml0 sha256 16e270179f8a4aeeece0ce2f48fb1baa0449409acb6d492c7fb15957d99f006a)",
+   "backend_on_target": "Metal (ggml, embedded shader library); CPU on the sandbox"
+  },
+  "mlt": {
+   "version": "7.42.0",
+   "reference_identity": "Debian sid mlt 7.42.0-1 (libmlt7 sha256 b7ee6e5309104a9b64600a0a817e4659e8d36dad05cca72bc4ffd30dd97e5f00, melt 42cf89823d0eff37c7098132f3109787037e41d8228cb281267c6de87aa6dc05, libmlt-data 8c1d318d607bcc32e8016f4be109155a5d542870f8964ad03b3d89a990b47d46)",
+   "links_against": "FFmpeg 9.0.2 (libavcodec63)",
+   "python_bindings": "mlt7 (SWIG) built for the project interpreter: CPython 3.14 on the target, 3.12 in the sandbox",
+   "build_dependencies_from_debian": [
+    "libavformat-dev",
+    "libavdevice-dev",
+    "libswscale-dev",
+    "frei0r-plugins-dev",
+    "ladspa-sdk",
+    "libebur128-dev",
+    "libexif-dev",
+    "libfftw3-dev",
+    "libgdk-pixbuf-2.0-dev",
+    "libjack-dev",
+    "liblilv-dev",
+    "libmovit-dev",
+    "libopencv-dev",
+    "libpango1.0-dev",
+    "libqt6opengl6-dev",
+    "qt6-5compat-dev",
+    "qt6-svg-dev",
+    "librtaudio-dev",
+    "librubberband-dev",
+    "libsamplerate-dev",
+    "libsdl2-dev",
+    "libsox-dev",
+    "libvidstab-dev",
+    "libvorbis-dev",
+    "libxine2-dev",
+    "libxml2-dev",
+    "python3-dev",
+    "swig"
+   ],
+   "frei0r": {
+    "readiness": "Verified",
+    "planned": "3.6.0 (Debian frei0r-plugins 3.6.0-2)",
+    "observed_sandbox": "1.8.0 (Ubuntu noble)",
+    "observed_target": "Homebrew frei0r 3.6.0, 156 plugins at /opt/homebrew/lib/frei0r-1 (FREI0R_PATH in profile.json)"
+   },
+   "movit": "1.7.2 (Debian libmovit8 1.7.2-1+b2); sandbox build on; target build off (MOD_MOVIT=OFF: no Homebrew movit, GPU filters not required by v1)",
+   "module_inventory": {
+    "readiness": "Verified",
+    "sandbox_build": {
+     "modules": [
+      "avformat",
+      "core",
+      "decklink",
+      "frei0r",
+      "gdk",
+      "jackrack",
+      "kdenlive",
+      "ladspa",
+      "movit",
+      "normalize",
+      "oldfilm",
+      "openfx",
+      "placebo",
+      "plus",
+      "plusgpl",
+      "qt6",
+      "resample",
+      "rtaudio",
+      "rubberband",
+      "sdl2",
+      "sox",
+      "vidstab",
+      "vorbis",
+      "xine",
+      "xml"
+     ],
+     "counts_melt_query": {
+      "producers": 42,
+      "filters": 544,
+      "transitions": 42,
+      "consumers": 13,
+      "links": 282
+     }
+    },
+    "target_build": {
+     "host": "macbook-pro-m1pro-16gb",
+     "modules": [
+      "avformat",
+      "core",
+      "decklink",
+      "frei0r",
+      "gdk",
+      "kdenlive",
+      "normalize",
+      "oldfilm",
+      "openfx",
+      "placebo",
+      "plus",
+      "plusgpl",
+      "qt6",
+      "resample",
+      "rtaudio",
+      "rubberband",
+      "sdl2",
+      "sox",
+      "vidstab",
+      "vorbis",
+      "xine",
+      "xml"
+     ],
+     "modules_off": [
+      "movit",
+      "opencv",
+      "glaxnimate",
+      "ndi",
+      "spatialaudio",
+      "rnnoise",
+      "jackrack",
+      "ladspa",
+      "sdl1"
+     ],
+     "counts_melt_query": {
+      "producers": 43,
+      "filters": 558,
+      "transitions": 54,
+      "consumers": 11,
+      "links": 310
+     },
+     "evidence": "docs/evidence/target-m1-install-2026-10-20.md"
+    },
+    "note": "the editing package boundary (descriptors per service/parameter) is frozen in M1 from this inventory; sandbox and target module sets differ in GPU/audio-plugin modules only"
+   },
+   "catalog_digest": "observed per build by aidashvideo-doctor (facts.catalog_sha256); not pinned",
+   "macos_build_note": "-DRELOCATABLE=OFF is required on macOS; otherwise MLT ignores MLT_REPOSITORY/MLT_DATA and looks for <executable>/../PlugIns/mlt"
+  },
+  "fonts": [
+   {
+    "family": "DejaVu Sans",
+    "use": "titles/captions default",
+    "license": "Bitstream Vera / DejaVu (free)",
+    "readiness": "Missing",
+    "file_sha256": "TODO (Missing): bind the title/caption font on the target (DejaVuSans.ttf via Homebrew font-dejavu or a vendored copy) and hash it; sandbox copy is ae7b7855e115a5966d8b1b3f80f254ccc117ec86f9965e202ee2940453837280"
+   }
+  ],
+  "codecs": {
+   "export_video": "h264 via libx264 (GPL; FFmpeg built --enable-gpl)",
+   "export_audio": "aac (FFmpeg native)",
+   "intermediates": "pcm_s16le/pcm_s24le WAV, png frames, framemd5 receipts",
+   "inputs_supported": [
+    "h264",
+    "hevc",
+    "prores",
+    "aac",
+    "pcm",
+    "mp3"
+   ],
+   "inputs_refused": [
+    "HDR (PQ/HLG) sources until a declared conversion exists (V04)"
+   ]
+  },
+  "licenses": [
+   {
+    "component": "FFmpeg 9.0.2 with libx264",
+    "license": "GPL-2.0-or-later (GPL build)"
+   },
+   {
+    "component": "MLT 7.42.0",
+    "license": "LGPL-2.1-or-later core; GPL modules (plusgpl, frei0r, qt, etc.)"
+   },
+   {
+    "component": "frei0r 3.6.0",
+    "license": "GPL-2.0-or-later"
+   },
+   {
+    "component": "whisper.cpp 1.9.5 / ggml 0.26.0",
+    "license": "MIT"
+   },
+   {
+    "component": "mlx 0.32.3",
+    "license": "MIT"
+   },
+   {
+    "component": "mlx-vlm 0.7.8",
+    "license": "MIT"
+   },
+   {
+    "component": "Whisper ggml weights",
+    "license": "MIT (whisper.cpp conversions)"
+   },
+   {
+    "component": "AiDashVideo",
+    "license": "Apache-2.0"
+   },
+   {
+    "component": "SAM 3.1 weights (mlx-community/sam3.1-bf16, converted from facebook/sam3.1)",
+    "license": "SAM License (Meta); access terms apply to the base model; distinct from this repository's Apache-2.0"
+   },
+   {
+    "component": "huggingface-hub 1.33.0 / transformers 5.19.0 (CLIP tokenizer only; no SAM execution)",
+    "license": "Apache-2.0"
+   },
+   {
+    "component": "openai/clip-vit-base-patch32 tokenizer files",
+    "license": "MIT"
+   }
+  ],
+  "output_profile": {
+   "video": "SDR Rec.709 limited range, 1920x1080, 30/1 fps, yuv420p, h264 (libx264)",
+   "audio": "48 kHz stereo, aac; delivery Loudness(target_lufs, true_peak_dbtp) | Unconstrained",
+   "container": "mp4",
+   "note": "fixed initial profile per docs/design/milestone-0.md; other profiles are descriptor-bound operations"
+  }
+ },
+ "observed": {
+  "linux-sandbox": {
+   "recorded": "2026-10-16",
+   "evidence": "docs/evidence/milestone-0.md",
+   "python": {
+    "version": "3.12.3",
+    "executable": "/usr/bin/python3.12",
+    "uv": "0.9.10",
+    "pyright": "1.1.414 (in .venv, runs offline via nodejs-wheel)",
+    "ruff": "0.17.0",
+    "pytest": "9.1.1"
+   },
+   "ffmpeg": {
+    "version": "6.1.1-3ubuntu5",
+    "path": "/usr/bin/ffmpeg",
+    "ffmpeg_sha256": "ed16af623947494a72e284b6eb8ff225f2da22b38b5d5069c2fd4b4ba3384e41",
+    "ffprobe_sha256": "272f6ebc634a63d9c8b4ca68e964119d980f25154e5aa2c35e5487da48e9a58f",
+    "capability_sha256": "d327484e75e0d37931dcb43ce38c389db032cd80022b342854f1a00579200231",
+    "counts": {
+     "encoders": 223,
+     "decoders": 534,
+     "filters": 555,
+     "muxers": 186,
+     "demuxers": 367
+    },
+    "whisper_filter": false,
+    "note": "not the frozen identity; used only for fixture generation and dev-sandbox checks"
+   },
+   "mlt": {
+    "version": "7.22.0",
+    "install": "rootless .deps/mlt from 77 pinned Ubuntu noble archives (toolchain/mlt-noble-amd64.lock)",
+    "profile_id": "mlt-7.22.0-ubuntu-noble-amd64",
+    "catalog_sha256": "c80f52aaab3f7e246f2b3fc1ee3374d2b5f52885f5810e6cb88ab910ad4c937d",
+    "counts": {
+     "producers": 44,
+     "filters": 602,
+     "transitions": 42,
+     "consumers": 17,
+     "links": 350
+    },
+    "modules": [
+     "avformat",
+     "core",
+     "decklink",
+     "frei0r",
+     "gdk",
+     "glaxnimate",
+     "jackrack",
+     "kdenlive",
+     "movit",
+     "normalize",
+     "oldfilm",
+     "opencv",
+     "plus",
+     "plusgpl",
+     "qt",
+     "resample",
+     "rtaudio",
+     "rubberband",
+     "sdl",
+     "sdl2",
+     "sox",
+     "vidstab",
+     "vorbis",
+     "xine",
+     "xml"
+    ],
+    "frei0r_plugins": 136,
+    "profiles": 76,
+    "python_bindings": "mlt7 for CPython 3.12 (python3-mlt 7.22.0-1build6)",
+    "note": "not the frozen identity; development only"
+   },
+   "python_packages": {
+    "torch": "2.14.1+cu130 (PyPI wheel; CPU only here)",
+    "torchvision": "0.29.1",
+    "transformers": "5.19.0",
+    "numpy": "2.5.4",
+    "mlx": "not installable (darwin marker)"
+   },
+   "devices": {
+    "cuda": false,
+    "mps": false,
+    "metal": false,
+    "cpu": true
+   }
+  },
+  "linux-sandbox-frozen-build": {
+   "recorded": "2026-10-18",
+   "host": "linux-sandbox",
+   "recipe": "scripts/build_frozen_toolchain.sh (rootless, .deps/frozen; sysroot from toolchain/sysroot-noble-amd64.lock)",
+   "sources": {
+    "ffmpeg_9.0.2.orig.tar.xz": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e (Debian archive)",
+    "whisper.cpp-1.9.5.tar": "a2e9fd8dd76d028a747042017ef6b9db605b95e19c45fbd498f8eb309794e4c3 (operator upload; bundled ggml 0.26.0)",
+    "mlt-7.42.0.tar": "94c219b256d476dfbf5f7117fcc0d3dec3675fa6d4cdfe51db2eca5a953d0ed2 (operator upload)"
+   },
+   "ffmpeg": {
+    "version": "9.0.2",
+    "configure": "--enable-gpl --enable-version3 --enable-shared --enable-libx264 --enable-libass --enable-libfreetype --enable-libfontconfig --enable-libharfbuzz --enable-libfribidi --enable-libvorbis --enable-whisper",
+    "ffmpeg_sha256": "b46b0fd509dc3fd9d4cabdff9a0ed72b8513b6c9f120d4303ee676bc01b47757",
+    "ffprobe_sha256": "b7f85278f4b095b1d68a01d5d4c3cf644cfcd77ad12e753e618c86ae4145748c",
+    "whisper_filter": true,
+    "capability_sha256": "175d712d95c9c6a06ea4a64f3129da07df915b2a9d949ab658b38a3d1bd42a83",
+    "counts": {
+     "encoders": 182,
+     "decoders": 518,
+     "filters": 479,
+     "muxers": 188,
+     "demuxers": 367
+    },
+    "doctor": "frozen profile -> ffmpeg Verified (1 s 1080p30 h264+aac round trip, 30 frames decoded)"
+   },
+   "whisper_cpp": {
+    "version": "1.9.5",
+    "ggml": "0.26.0 (bundled)",
+    "backend": "CPU (AVX2/FMA/F16C; GGML_NATIVE=OFF)",
+    "libwhisper_sha256": "2218e5a3b1d2c5f42f8bb7e9122eab2a589ae279518782c9fad69ab98d8bc828",
+    "model": {
+     "asset_id": "whisper-ggml-model",
+     "file": "ggml-base.en.bin",
+     "sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002",
+     "admitted": true
+    },
+    "gp01_transcription": {
+     "whisper-cli": "[00:00:00.000 --> 00:00:07.000] Hello Golden Paths!",
+     "ffmpeg_whisper_filter_queue3": "{\"start\":0,\"end\":3000,\"text\":\"Hello, Golden.\"} {\"start\":2986,\"end\":3486,\"text\":\"paths.\"}",
+     "ffmpeg_whisper_filter_queue1": "{\"start\":1962,\"end\":2962,\"text\":\"Hello, Golden.\"} {\"start\":2943,\"end\":3443,\"text\":\"path.\"}",
+     "ground_truth_silencedetect": "speech 2.196 s - 3.256 s",
+     "finding": "segment boundaries are quantised to the filter's queue window (0.2-0.3 s error at queue=1; 2.2 s at queue=3); recognition of the synthetic voice is unstable (path/paths). Confirms SegmentTimed-only evidence (V05) and the need for a separate alignment adapter (V06)."
+    }
+   },
+   "mlt": {
+    "version": "7.42.0",
+    "profile_id": "mlt-7.42.0-frozen",
+    "melt_sha256": "a2b2e148a9da322e3b4b7e1700a6ab049f2dcfc653c94b7a50b746460036bd4c",
+    "libmlt_sha256": "0aae08d693b7cea8877b2ae9435a415828c60a6c1806171371c9fbd69a740bbb",
+    "modules": [
+     "avformat",
+     "core",
+     "decklink",
+     "frei0r",
+     "gdk",
+     "jackrack",
+     "kdenlive",
+     "ladspa",
+     "movit",
+     "normalize",
+     "oldfilm",
+     "openfx",
+     "placebo",
+     "plus",
+     "plusgpl",
+     "qt6",
+     "resample",
+     "rtaudio",
+     "rubberband",
+     "sdl2",
+     "sox",
+     "vidstab",
+     "vorbis",
+     "xine",
+     "xml"
+    ],
+    "module_count": 25,
+    "counts_melt_query": {
+     "producers": 42,
+     "filters": 544,
+     "transitions": 42,
+     "consumers": 13,
+     "links": 282
+    },
+    "counts_python_bindings": {
+     "producers": 45,
+     "filters": 560,
+     "transitions": 42,
+     "consumers": 13,
+     "links": 297
+    },
+    "catalog_sha256": "eab7421a7aa9c44eb387998da4ad08341efccebbdb88411837d4bfd2e084b8e0",
+    "python_bindings": "mlt7 for CPython 3.12 (sandbox interpreter; target needs a 3.14 build)",
+    "qt6": "6.4.2 from the sysroot; headless via QT_QPA_PLATFORM=offscreen",
+    "movit": "1.7.1 (sysroot)",
+    "frei0r_plugins": "1.8.0 from the dev-sandbox tree (plan pins 3.6.0)",
+    "modules_off": [
+     "opencv (MOD_OPENCV=OFF)",
+     "glaxnimate_qt6",
+     "ndi",
+     "spatialaudio",
+     "rnnoise (no Ubuntu package)",
+     "sdl1"
+    ],
+    "render_check": "GP-01 interview.mp4 [60,179] + avfilter.boxblur (in=0 out=59) + dynamictext Qt6 title + music.wav: 120 frames 1920x1080@30 decoded by ffprobe 9.0.2, aac 48 kHz stereo, max -13.0 dBFS; frames at 0.5 s (blurred) and 3.0 s (sharp) inspected by the implementer (var/evidence/milestone-0/mlt742_frame_*.png)",
+    "doctor": "frozen profile -> mlt Verified (bindings tractor render 30 frames + full decode)"
+   },
+   "python": {
+    "version": "3.12.3",
+    "note": "frozen profile pins 3.14; host row reports Conflicting (not the target host)"
+   }
+  },
+  "macbook-pro-m1pro-16gb": {
+   "recorded": "2026-10-21",
+   "host": "macOS 27.0.1 arm64, Apple M1 Pro, 16 GB; uv 0.12.11; uv-managed CPython 3.14.7",
+   "recipe": "scripts/build_toolchain_macos.sh (RELOCATABLE=OFF, SWIG_PYTHON=ON, Homebrew build deps only)",
+   "install_dir": "~/.local/share/aidashvideo/deps (AIDASHVIDEO_DEPS_DIR overrides)",
+   "sources": "whisper.cpp 1.9.5 and MLT 7.42.0 upstream release archives (hashes in the build script); FFmpeg 9.0.2 Debian orig tarball",
+   "ffmpeg": "9.0.2 --enable-whisper --enable-libass --enable-libfreetype --enable-libfontconfig --enable-libharfbuzz --enable-libfribidi --enable-libx264 --enable-libvorbis; all required filters/encoders/decoders/muxers present; 1 s 1080p30 round trip decoded",
+   "whisper_cpp": "1.9.5, ggml 0.26.0, Metal backend with embedded shader library",
+   "mlt": "7.42.0, 22 modules, mlt7 bindings for CPython 3.14; 30-frame 1080p30 + 48 kHz stereo render decoded",
+   "python": "3.14.7 (uv-managed)",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md",
+   "rebuilt": "2026-10-21 from upstream release archives after the checkout's ignored files were reverted; capability and catalog digests identical to the 2026-10-20 build"
+  }
+ },
+ "descriptor_schema": {
+  "$ref": "docs/plan/contracts.md#7-wire-schemas",
+  "id": "aidashvideo.service-descriptor/1",
+  "source": "MLT service metadata YAML (`melt -query filter=<id>` etc.) compiled by aidashvideo.catalog.descriptors"
+ },
+ "readiness_rows": [
+  {
+   "id": "core",
+   "planned": {
+    "python": "3.14",
+    "uv": ">=0.9.10 (0.12.11 on the target)",
+    "ffmpeg": "9.0.2 (+whisper)",
+    "mlt": "7.42.0",
+    "host": "macbook-pro-m1pro-16gb"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "python": "3.12.3",
+     "ffmpeg": "6.1.1-3ubuntu5",
+     "mlt": "7.22.0",
+     "doctor": "frozen profile -> host Conflicting, ffmpeg Conflicting (no whisper), mlt Conflicting (7.22.0 != 7.42.0); dev-sandbox-linux profile -> core Verified"
+    },
+    {
+     "host": "linux-sandbox",
+     "frozen_identities": "FFmpeg 9.0.2 (+whisper) and MLT 7.42.0 built from source (scripts/build_frozen_toolchain.sh)",
+     "doctor": "frozen profile -> core Verified; host row Conflicting (Linux/x86_64, Python 3.12 vs target Darwin/arm64, 3.14)",
+     "evidence": "var/evidence/milestone-0/doctor-frozen.json"
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "python": "3.14.7",
+     "uv": "0.12.11",
+     "ffmpeg": "9.0.2 (+whisper)",
+     "mlt": "7.42.0",
+     "doctor": "frozen profile -> host, ffmpeg, mlt Verified; core: Verified (exit 0)"
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "uv run --offline --no-sync aidashvideo-doctor (exit 0 = core Verified)",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: `aidashvideo-doctor` exit 0 with real FFmpeg round trip and MLT render; `pytest -m live` ffmpeg/mlt tests",
+   "first_consumer": "aidashvideo.store (M1)"
+  },
+  {
+   "id": "full-mlt-package",
+   "planned": {
+    "mlt": "7.42.0 complete module/service/parameter inventory",
+    "inventory": "module list + melt -query counts recorded per host build; service/parameter descriptors frozen in M1"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "mlt": "7.22.0",
+     "modules": 25,
+     "catalog_sha256": "c80f52aaab3f7e246f2b3fc1ee3374d2b5f52885f5810e6cb88ab910ad4c937d"
+    },
+    {
+     "host": "linux-sandbox",
+     "mlt": "7.42.0",
+     "modules": 25,
+     "counts_melt_query": {
+      "producers": 42,
+      "filters": 544,
+      "transitions": 42,
+      "consumers": 13,
+      "links": 282
+     },
+     "catalog_sha256": "eab7421a7aa9c44eb387998da4ad08341efccebbdb88411837d4bfd2e084b8e0",
+     "opencv_module": "off"
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "mlt": "7.42.0",
+     "modules": 22,
+     "counts_melt_query": {
+      "producers": 43,
+      "filters": 558,
+      "transitions": 54,
+      "consumers": 11,
+      "links": 310
+     }
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "aidashvideo.catalog.descriptors.load(catalog_digest) -> tuple[ServiceDescriptor, ...]",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: 22 modules load, catalog enumerated by the native probe, Qt6 headless; descriptor-level coverage is M1 work",
+   "first_consumer": "aidashvideo.compiler (M2), aidashvideo.client.chat.tools (M4)"
+  },
+  {
+   "id": "timed-speech",
+   "planned": {
+    "adapter": "FFmpeg `whisper` audio filter",
+    "ffmpeg": "9.0.2 built --enable-whisper",
+    "whisper.cpp": "1.9.5",
+    "model": "ggml-base.en.bin (operator choice recorded at admission)",
+    "timing": "segment-level only (SegmentTimed)"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "ffmpeg": "6.1.1-3ubuntu5",
+     "whisper_filter": false
+    },
+    {
+     "host": "linux-sandbox",
+     "ffmpeg": "9.0.2 with whisper filter",
+     "model": "ggml-base.en.bin admitted (a03779c8…f002)",
+     "doctor": "timed-speech Verified (NOT quality-qualified)",
+     "gp01": "segments quantised to the queue window; see observed.linux-sandbox-frozen-build.whisper_cpp"
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "ffmpeg": "9.0.2 built --enable-whisper (Metal ggml)",
+     "model": "ggml-base.en.bin admitted",
+     "doctor": "timed-speech Verified (NOT quality-qualified)",
+     "synthesized_phrase_output": "queue=3: [0,2960] 'Hello Golden Pass!' [2944,3444] 'death.' for `say` 'hello golden path' delayed 2 s"
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "aidashvideo.analysis.speech.FfmpegWhisperAdapter.transcribe(asset, span, language) -> TranscriptEvidence",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: whisper filter installed and smoke-tested on the target; NOT quality-qualified (V05/V06/V08 remain open)",
+   "first_consumer": "aidashvideo.analysis.speech (M3)"
+  },
+  {
+   "id": "sam31-mlx",
+   "planned": {
+    "implementation": "mlx-vlm 0.7.8 (mlx_vlm.models.sam3_1.MultiplexTrackerModel; model card converted with mlx-vlm 0.4.3)",
+    "mlx": ">=0.32.3 (mlx-metal)",
+    "device": "Metal (Apple M1 Pro, 16 GB)",
+    "checkpoint": "mlx-community/sam3.1-bf16 snapshot 97ae6308acc10e6308529f432c71ebfcd78ac65d (873.2M params; stored F32, 3.49 GB)",
+    "python": "3.14",
+    "tokenizer": "openai/clip-vit-base-patch32 tokenizer files (asset clip-tokenizer), resolved offline from the isolated hub cache; bound explicitly, never fetched at first text use",
+    "profile": "the only mask profile (D5); no CPU/remote/alternative-model fallback"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "note": "darwin-only markers; nothing observed. Model card benchmarks (M3 Max, bf16): multiplex tracking 190-227 ms/frame for 3-5 objects at 1008 px"
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "mlx": "0.32.3 (+mlx-metal)",
+     "mlx-vlm": "0.7.8",
+     "device": "Device(gpu, 0), Metal available",
+     "load_s": 3.7,
+     "synthetic_subject": "red disc, text prompt 'a red circle': score 0.96, box within 20 px, mask 360x640, 5.8 s, 5.4 GB peak Metal memory",
+     "doctor": "sam31-mlx Verified (NOT quality-qualified)"
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "aidashvideo.analysis.masks.Sam31MlxBackend (MaskBackend)",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: `pytest -m live` SAM 3.1 test with HF_HUB_OFFLINE=1; installed and smoke-tested on the target; NOT quality-qualified (V05/V06/V08 remain open)",
+   "first_consumer": "aidashvideo.analysis.masks.SubjectTracker (M3)"
+  }
+ ],
+ "tool_readiness": [
+  {
+   "id": "ffmpeg",
+   "planned": {
+    "version": "9.0.2",
+    "build": "--enable-whisper"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "version": "6.1.1-3ubuntu5",
+     "on_path": true
+    },
+    {
+     "host": "linux-sandbox",
+     "frozen_build": true,
+     "version": "9.0.2",
+     "path": ".deps/frozen/bin/ffmpeg",
+     "on_path": false
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "version": "9.0.2",
+     "frozen_build": true,
+     "whisper_filter": true,
+     "path": "<deps>/frozen/bin/ffmpeg",
+     "on_path": false
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "CLI ffmpeg/ffprobe",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: `ffmpeg -version` 9.0.2; `-filters` lists whisper, drawtext, subtitles, ass",
+   "first_consumer": "aidashvideo.store (M1)"
+  },
+  {
+   "id": "melt",
+   "planned": {
+    "version": "7.42.0"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "version": "7.22.0",
+     "on_path": false,
+     "path": ".deps/mlt/root/usr/bin/melt"
+    },
+    {
+     "host": "linux-sandbox",
+     "frozen_build": true,
+     "version": "7.42.0",
+     "path": ".deps/frozen/bin/melt",
+     "on_path": false
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "version": "7.42.0",
+     "frozen_build": true,
+     "path": "<deps>/frozen/bin/melt",
+     "on_path": false
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "CLI melt (smoke/descriptors)",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: `melt -version` 7.42.0; 22 modules",
+   "first_consumer": "aidashvideo.catalog.descriptors (M1)"
+  },
+  {
+   "id": "mlt-python-bindings",
+   "planned": {
+    "module": "mlt7",
+    "python": "3.14"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "module": "mlt7",
+     "python": "3.12",
+     "works": true
+    },
+    {
+     "host": "linux-sandbox",
+     "frozen_build": true,
+     "version": "7.42.0 for CPython 3.12",
+     "path": ".deps/frozen/lib/python3.12/dist-packages",
+     "on_path": false
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "version": "7.42.0 for CPython 3.14.7",
+     "path": "<deps>/frozen/lib/python3.14/site-packages",
+     "works": true
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "import mlt7 inside aidashvideo.mltworker only",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: native probe imports mlt7 and renders",
+   "first_consumer": "aidashvideo.mltworker (M2)"
+  },
+  {
+   "id": "pyright",
+   "planned": {
+    "version": "1.1.414"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "version": "1.1.414",
+     "on_path": false,
+     "run": "uv run --offline --no-sync pyright"
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "version": "1.1.414",
+     "run": "uv run --offline --no-sync pyright"
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "uv run --offline --no-sync pyright",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: 0 errors strict",
+   "first_consumer": "all (M1)"
+  },
+  {
+   "id": "python",
+   "planned": {
+    "version": "3.14"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "version": "3.12.3"
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "version": "3.14.7",
+     "source": "uv-managed interpreter already present; python-downloads=never"
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "uv run --offline --no-sync python",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: `uv run --offline --no-sync python --version`",
+   "first_consumer": "all (M1)"
+  },
+  {
+   "id": "uv",
+   "planned": {
+    "version": "0.9.10"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "version": "0.9.10"
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "version": "0.12.11"
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "uv",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: `uv --version`; `uv lock --check --offline` current",
+   "first_consumer": "all (M1)"
+  }
+ ],
+ "design": {
+  "briefs": "docs/design/ (manifest.json sha256 of each brief)",
+  "subject_profile": "exactly one: SAM 3.1 via mlx-vlm on Apple Silicon Metal (docs/design/manifest.json#/subject_profile)"
+ },
+ "deps_dir": {
+  "resolution": [
+   "AIDASHVIDEO_DEPS_DIR",
+   "<repo>/.deps when it holds frozen/profile.json or models/admissions.json",
+   "$XDG_DATA_HOME/aidashvideo/deps (default ~/.local/share/aidashvideo/deps)"
+  ],
+  "target": "/Users/rahulnath/.local/share/aidashvideo/deps",
+  "why": "checkouts are ephemeral for ignored files (D12)"
+ },
+ "limits": {
+  "qualified_host": "macbook-pro-m1pro-16gb",
+  "unified_memory_gb": 16,
+  "revision_policy": "initial finite limits; M6 measurements may revise them only through an explicit operator decision",
+  "subject_worker": {
+   "resident_models": 1,
+   "workers": 1,
+   "metal_active_memory_budget_gib": 9,
+   "observed_peak_gib_single_640x360_frame": 5.4,
+   "worker_rss_gib": 3,
+   "idle_eviction_s": 120,
+   "max_subjects_per_request": 16,
+   "propagation_chunk_frames": 64,
+   "input_resolution_px": 1008,
+   "max_source_dimensions": "3840x2160",
+   "max_interval_s": 600,
+   "decoder_timeout_s_per_frame": 30,
+   "cancellation_deadline_s": 5,
+   "inference_retries": 0
+  },
+  "mlt_worker": {
+   "preview_sessions": 1,
+   "export_workers": 1,
+   "threads": 4,
+   "rss_gib": 4,
+   "frame_buffer_depth": 25,
+   "preview_queue": 2,
+   "decoder_timeout_s": 20,
+   "shutdown_deadline_s": 5
+  },
+  "ffmpeg_jobs": {
+   "concurrent": 2,
+   "threads": 4,
+   "timeout_s": 600,
+   "retries_transient_io": 1
+  },
+  "speech": {
+   "concurrent": 1,
+   "queue_s": 3,
+   "timeout_s": 600
+  },
+  "disk": {
+   "scratch_total_gib": 40,
+   "min_free_gib": 10
+  },
+  "ledger": {
+   "sqlite_busy_timeout_s": 5,
+   "writers": 1,
+   "max_payload_mib": 64
+  },
+  "tool_server": {
+   "processes_per_project": 1,
+   "max_request_mib": 1,
+   "request_timeout_s": 30
+  }
+ },
+ "readiness_rows_note": "four separately inspectable areas required by the briefs: core, full-mlt-package, timed-speech, sam31-mlx"
+}

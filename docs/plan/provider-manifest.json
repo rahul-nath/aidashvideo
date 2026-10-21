@@ -1,0 +1,327 @@
+{
+ "schema": "aidashvideo.provider-manifest/2",
+ "frozen_at": "2026-10-21",
+ "readiness_semantics": {
+  "$ref": "docs/plan/runtime-profile.json#/readiness_semantics"
+ },
+ "isolation": {
+  "environment": "aidashvideo.catalog.offline.provider_environment()",
+  "flags": [
+   "HF_HUB_OFFLINE=1",
+   "TRANSFORMERS_OFFLINE=1",
+   "HF_DATASETS_OFFLINE=1",
+   "HF_HUB_DISABLE_TELEMETRY=1",
+   "HF_HUB_DISABLE_IMPLICIT_TOKEN=1",
+   "DO_NOT_TRACK=1"
+  ],
+  "order": "the environment is applied to the worker process before any provider import; HF_TOKEN is removed",
+  "caches": {
+   "HF_HUB_CACHE": "<deps>/models/hf-hub",
+   "HF_HOME": "<deps>/models/hf-home"
+  },
+  "acquisition": "operator-supplied only: `aidashvideo-models admit <asset-id> <dir|file>`; any download needs an AcquisitionGrant naming source, hash, bytes and destination",
+  "residency": {
+   "resident_models_per_worker": 1,
+   "workers": 1,
+   "reuse": "while admitted subject work is queued",
+   "idle_eviction_s": 120,
+   "eviction_on_pressure": "Metal active memory above the budget in docs/plan/runtime-profile.json#/limits/subject_worker",
+   "rule": "unload never deletes durable masks; a switch of checkpoint/precision/runtime is an admitted operation with new MaskKey bindings"
+  },
+  "remote_adapter_policy": "local-only by default; a remote adapter requires an explicit named host, frame/media/prompt/transcript/mask transfer scope, retention policy, credential owner, resource/cost ceiling and cancellation contract; naming a candidate host grants nothing (none is named)"
+ },
+ "timed_asr": {
+  "selected": "ffmpeg-whisper-filter",
+  "alternatives": [
+   {
+    "id": "whisper-cpp-cli",
+    "status": "named alternative, not selected; never an automatic fallback (I8)",
+    "why_not": "second native process type with its own model loading; identical ggml models"
+   }
+  ],
+  "adapter": {
+   "id": "ffmpeg-whisper-filter",
+   "planned": {
+    "runtime": "FFmpeg 9.0.2 `whisper` audio filter (libavfilter 12) linked to whisper.cpp 1.9.5 / ggml 0.26.0",
+    "backend": {
+     "target": "Metal via ggml",
+     "sandbox": "CPU via ggml"
+    },
+    "checkpoint": {
+     "asset_id": "whisper-ggml-model",
+     "default": "ggml-base.en.bin",
+     "format": "ggml",
+     "conversion": "none (pre-converted by whisper.cpp project)",
+     "license": "MIT"
+    },
+    "invocation": "ffmpeg -nostdin -i <source> -vn -af aresample=16000,whisper=model=<ggml>:language=en:queue=<s>:destination=<json>:format=json -f null -",
+    "output": "segment-level timestamps -> TranscriptEvidence.SegmentTimed; never WordTimed; empty output -> NoSpeech only when silencedetect agrees, else RecognitionFailed",
+    "failure_semantics": "a zero ffmpeg exit with no transcript is RecognitionFailed, not NoSpeech (V05)",
+    "cache_identity": "source sha256 + stream + range, model file sha256, language, queue, VAD settings, FFmpeg build identity",
+    "qualification_profile": "segment timing only; WordAligned never produced (D4); recorded backend = Metal via ggml on the target"
+   },
+   "observed": [
+    {
+     "host": "linux-sandbox",
+     "ffmpeg": "6.1.1-3ubuntu5",
+     "whisper_filter": false,
+     "note": "filter introduced in FFmpeg 8.0"
+    },
+    {
+     "host": "linux-sandbox",
+     "ffmpeg": "9.0.2 built --enable-whisper (sandbox frozen build)",
+     "model": "ggml-base.en.bin admitted",
+     "doctor": "timed-speech Verified (NOT quality-qualified)",
+     "gp01_filter_output": {
+      "queue=3": "[0,3000] 'Hello, Golden.' [2986,3486] 'paths.'",
+      "queue=1": "[1962,2962] 'Hello, Golden.' [2943,3443] 'path.'",
+      "truth": "2.196-3.256 s"
+     },
+     "finding": "timing is segment/queue-quantised and the text varies with queue size; the adapter must record queue as part of the evidence identity and never claim word precision"
+    },
+    {
+     "host": "macbook-pro-m1pro-16gb",
+     "ffmpeg": "9.0.2 built --enable-whisper (Metal ggml, target build)",
+     "model": "ggml-base.en.bin admitted",
+     "doctor": "timed-speech Verified (NOT quality-qualified)",
+     "synthesized_phrase_output": {
+      "queue=3": "[0,2960] 'Hello Golden Pass!' [2944,3444] 'death.'",
+      "input": "`say` 'hello golden path' delayed 2 s, 16 kHz mono"
+     },
+     "finding": "segment timing quantised to the queue window as in the sandbox; base.en mishears the synthesized 'path'"
+    }
+   ],
+   "readiness": "Verified",
+   "interface": "aidashvideo.analysis.speech.FfmpegWhisperAdapter.transcribe(asset, span, language) -> TranscriptEvidence",
+   "evidence": "docs/evidence/target-m1-install-2026-10-20.md: `pytest -m live` whisper test; installed and smoke-tested on the target; NOT quality-qualified (V05/V06/V08 remain open)",
+   "first_consumer": "aidashvideo.analysis.speech (M3)",
+   "acquisition": {
+    "ffmpeg": "built from source on the target with --enable-whisper (scripts/build_toolchain_macos.sh)",
+    "model": "operator-supplied ggml-base.en.bin, admitted as asset whisper-ggml-model (sha256 a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002)"
+   }
+  },
+  "word_alignment": {
+   "id": "word-alignment",
+   "planned": {
+    "status": "deferred by operator decision D4"
+   },
+   "observed": [],
+   "readiness": "Missing",
+   "interface": "TimedSpeechAdapter producing TranscriptEvidence.WordTimed with a QualificationRef",
+   "evidence": "TODO (Missing): operator decision on an alignment adapter; until then V06 cannot be claimed and captions use segment timing marked unqualified",
+   "first_consumer": "aidashvideo.analysis.speech (after M3)"
+  }
+ },
+ "mask_backends": {
+  "abstraction": {
+   "adapter": "aidashvideo.analysis.masks.Sam31MlxBackend (the only backend)",
+   "orchestrator": "aidashvideo.analysis.masks.SubjectTracker",
+   "worker": "one isolated local Metal worker process started by aidashvideo.jobs with provider_environment()",
+   "outputs": "MaskTrack of MaskSpan = Tracked | NeedsCorrection | AbsentSubject; durable per-object source-frame artifacts keyed by MaskKey",
+   "selection": "explicit profile identity persisted in the EffectBinding and MaskKey; no fallback"
+  },
+  "profiles": [
+   {
+    "id": "sam31-mlx-metal",
+    "planned": {
+     "implementation": "mlx-vlm 0.7.8: mlx_vlm.utils.load_model(path); mlx_vlm.models.sam3_1.processing_sam3_1.Sam31Processor.from_pretrained(path); detection/text selection via mlx_vlm.models.sam3.generate.Sam3Predictor.predict(image, text_prompt, boxes); temporal tracking via mlx_vlm.models.sam3_1.tracker.MultiplexTrackerModel.init_state / prepare_frame_features / add_mask_prompt / track_step / propagate / recondition_masks_in_existing_state (signatures verified on the target 2026-10-20)",
+     "runtime": "mlx 0.32.3 + mlx-metal 0.32.3; huggingface-hub 1.33.0 (pinned local snapshot lookup); transformers 5.19.0 (CLIPTokenizer only); numpy 2.5.4; pillow 12.3.0",
+     "device": "Metal, Apple M1 Pro (16 GB); actual Metal execution recorded per run (mx.default_device() == gpu, mx.metal.is_available())",
+     "dtype": {
+      "storage_observed": "F32 (1961 tensors, 873.2M params, 3,493,016,552 bytes) despite the repository name",
+      "execution": "declared per SubjectProfile and bound into MaskKey; any cast is explicit"
+     },
+     "checkpoint": {
+      "asset_id": "sam31-mlx",
+      "repo": "mlx-community/sam3.1-bf16",
+      "revision": "97ae6308acc10e6308529f432c71ebfcd78ac65d",
+      "files": [
+       "config.json (model_type sam3.1_video)",
+       "model.safetensors"
+      ],
+      "format": "MLX safetensors (converted from facebook/sam3.1 with mlx-vlm 0.4.3)",
+      "license": "SAM License (Meta)"
+     },
+     "python": "3.14 (mlx-vlm requires >= 3.10)",
+     "expected_cost": "model card (M3 Max): 190-227 ms/frame multiplex tracking for 3-5 objects at 1008 px; target observed: 3.7 s cold load, 5.8 s first text detection on a 640x360 frame, 5.4 GiB peak Metal memory; real-time is not claimed",
+     "tokenizer": {
+      "asset_id": "clip-tokenizer",
+      "repo": "openai/clip-vit-base-patch32",
+      "files": [
+       "tokenizer_config.json",
+       "vocab.json",
+       "merges.txt",
+       "special_tokens_map.json",
+       "preprocessor_config.json",
+       "config.json"
+      ],
+      "binding": "explicit: HF_HUB_CACHE points at the isolated store and HF_HUB_OFFLINE=1 is set before import, so Sam31Processor's lazy CLIPTokenizer.from_pretrained('openai/clip-vit-base-patch32') resolves only the admitted snapshot; SubjectAssets.Missing(required_artifacts=[tokenizer]) is returned before inference when absent"
+     },
+     "preprocessing": "Sam31Processor defaults (resize to the declared input resolution, normalization per processor config); recorded in MaskKey.preprocessing",
+     "context_policy": "fresh image features for every source frame in PTS order; a frame's own backbone features may be reused for repeated work on that exact frame; earlier-frame feature reuse or dropped frames are never Tracked coverage",
+     "selection": "VisualSelection (positive/negative points, boxes) and TextSelection (concept + InstancePolicy); ambiguous single-subject text returns Candidates"
+    },
+    "observed": [
+     {
+      "host": "linux-sandbox",
+      "note": "not installable (darwin-only markers); API read from the mlx-vlm 0.7.8 wheel (sha256 b731a2220c6f572a9948369ebec5daa834cb8306004af861ebeabc1ba2c1100a)"
+     },
+     {
+      "host": "macbook-pro-m1pro-16gb",
+      "mlx": "0.32.3",
+      "mlx-vlm": "0.7.8",
+      "tokenizer": "clip-tokenizer asset (openai/clip-vit-base-patch32) via HF_HUB_CACHE, HF_HUB_OFFLINE=1",
+      "result": "score 0.96 on a synthetic red disc; 5.4 GB peak Metal memory"
+     }
+    ],
+    "readiness": "Verified",
+    "interface": "aidashvideo.analysis.masks.Sam31MlxBackend",
+    "evidence": "docs/evidence/target-m1-install-2026-10-20.md: offline load + synthetic-subject segmentation on Metal (`pytest -m live`); installed and smoke-tested on the target; NOT quality-qualified (V05/V06/V08 remain open)",
+    "first_consumer": "aidashvideo.analysis.masks.SubjectTracker (M4)",
+    "acquisition": {
+     "code": "extra `sam31-mlx` in pyproject (locked for darwin: mlx-vlm 0.7.8, mlx 0.32.3, pulls mlx-audio, opencv-python, fastapi; isolated by lazy import)",
+     "weights": "operator-supplied mlx-community/sam3.1-bf16 snapshot admitted with `aidashvideo-models admit sam31-mlx DIR --revision 97ae6308acc10e6308529f432c71ebfcd78ac65d`",
+     "tokenizer": "operator-supplied openai/clip-vit-base-patch32 tokenizer files admitted as clip-tokenizer"
+    },
+    "qualification_plan": [
+     "missing tokenizer -> SubjectAssets.Missing before import of mlx_vlm model code",
+     "missing model / empty store / corrupt safetensors -> Missing / Invalid without fetching (HF_HUB_OFFLINE=1, egress denied)",
+     "repeat and interrupted `aidashvideo-models admit` preserves the previous verified snapshot (.stage-* only)",
+     "restart and model eviction reuse durable MaskTracks whose MaskKey matches, with no inference",
+     "correction invalidates affected propagation and dependents; independent tracks stay cached",
+     "actual Metal execution recorded; CPU never labeled qualified",
+     "V08 thresholds on annot-masks for text, visual, corrected and multi-object cases"
+    ]
+   }
+  ],
+  "dropped": [
+   {
+    "id": "sam3-torch (transformers Sam3VideoModel / Sam3TrackerVideoModel)",
+    "reason": "operator decision D5 (2026-10-20/21): single SAM 3.1 MLX profile; the extra, asset and rows were removed from the repository"
+   },
+   {
+    "id": "edgetam",
+    "reason": "operator decision: SAM 3.1's tracker covers the visual-prompt tracking role"
+   },
+   {
+    "id": "sam3-official-pypi",
+    "reason": "hard-codes CUDA"
+   },
+   {
+    "id": "sam3-mlx-pypi",
+    "reason": "not the implementation named by the model card; requires Python >= 3.13 and documents SAM 3.1 video tracking as experimental"
+   },
+   {
+    "id": "dinov3-reacquisition",
+    "reason": "typed Capability.Unavailable extension contract only (D14)"
+   },
+   {
+    "id": "inpainting",
+    "reason": "typed Capability.Unavailable extension contract only (D14)"
+   }
+  ]
+ },
+ "chat_model": {
+  "id": "chat-model",
+  "planned": {
+   "integration": "one real tool-capable chat model behind aidashvideo.client.chat.ChatModelProvider; tool calls go through the stdio ToolServer (python -m aidashvideo.client.tools --grant-file) with the five method families in docs/plan/contracts.md#7-wire-schemas",
+   "identity": "operator choice before M5: a local OpenAI-compatible HTTP endpoint on localhost or an in-process mlx-lm model",
+   "credentials": "none unless the operator grants them; no external AI API usage is granted by selecting an interface",
+   "authority": "caller identity = OS user + grant file issued by the client at project open; model text never carries grants or revision ids as authority"
+  },
+  "observed": [],
+  "readiness": "Missing",
+  "interface": "aidashvideo.client.chat.ChatModelProvider.propose(turn, tools, head) -> EditProposal",
+  "evidence": "TODO (Missing): operator names the local model/server and its endpoint before M5; a deterministic fake provider may test control logic but never counts as chat qualification",
+  "first_consumer": "aidashvideo.client.chat (M5)"
+ },
+ "readiness_rows": [
+  {
+   "id": "core",
+   "readiness": "Verified",
+   "detail_in": "runtime-profile.json#/readiness_rows"
+  },
+  {
+   "id": "full-mlt-package",
+   "readiness": "Verified",
+   "detail_in": "runtime-profile.json#/readiness_rows"
+  },
+  {
+   "id": "timed-speech",
+   "readiness": "Verified",
+   "detail_in": "this file"
+  },
+  {
+   "id": "sam31-mlx",
+   "readiness": "Verified",
+   "detail_in": "this file"
+  }
+ ],
+ "readiness_rows_note": "mirror of docs/plan/runtime-profile.json#/readiness_rows (same four ids, same words); tests/test_plan_integrity.py checks agreement",
+ "acquisition_manifest": {
+  "note": "every artifact is operator-supplied or fetched only under an explicit grant; repeat/interrupted setup never promotes incomplete files (staged copy + atomic rename, hashes in <deps>/models/admissions.json and the build stamps)",
+  "artifacts": [
+   {
+    "id": "sam31-mlx",
+    "source": "https://huggingface.co/mlx-community/sam3.1-bf16",
+    "revision": "97ae6308acc10e6308529f432c71ebfcd78ac65d",
+    "sha256": "recorded per file in admissions.json at admission",
+    "bytes": 3493016552,
+    "license_access": "SAM License (Meta); base model facebook/sam3.1 access terms",
+    "destination": "<deps>/models/hf-hub/models--mlx-community--sam3.1-bf16",
+    "host_backend": "macOS arm64 / Metal",
+    "conversion_inputs": "none (pre-converted by mlx-vlm 0.4.3)",
+    "transitive": [
+     "mlx-vlm 0.7.8",
+     "mlx 0.32.3",
+     "mlx-metal 0.32.3"
+    ],
+    "interruption": "staged under .stage-*, promoted by rename; refs/main written last"
+   },
+   {
+    "id": "clip-tokenizer",
+    "source": "https://huggingface.co/openai/clip-vit-base-patch32",
+    "revision": "operator snapshot (tokenizer/processor files only)",
+    "sha256": "recorded per file at admission",
+    "bytes": 1400000,
+    "license_access": "MIT",
+    "destination": "<deps>/models/hf-hub/models--openai--clip-vit-base-patch32",
+    "host_backend": "any",
+    "conversion_inputs": "none",
+    "transitive": [
+     "transformers 5.19.0 CLIPTokenizer",
+     "huggingface-hub 1.33.0"
+    ],
+    "interruption": "same as above"
+   },
+   {
+    "id": "whisper-ggml-model",
+    "source": "https://huggingface.co/ggerganov/whisper.cpp (ggml-base.en.bin)",
+    "revision": "n/a",
+    "sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002",
+    "bytes": 147964211,
+    "license_access": "MIT",
+    "destination": "<deps>/models/whisper/ggml-base.en.bin",
+    "host_backend": "Metal via FFmpeg whisper filter (target) / CPU (sandbox)",
+    "conversion_inputs": "none",
+    "transitive": [
+     "FFmpeg 9.0.2 --enable-whisper",
+     "whisper.cpp 1.9.5"
+    ],
+    "interruption": "atomic write"
+   },
+   {
+    "id": "toolchain sources",
+    "source": "whisper.cpp 1.9.5 and MLT 7.42.0 release archives (GitHub) or the operator's plain .tar; FFmpeg 9.0.2 orig tarball (deb.debian.org)",
+    "sha256": "pinned in scripts/build_toolchain_macos.sh and scripts/build_frozen_toolchain.sh",
+    "bytes": "9.6 MB + 6.8 MB + 11 MB",
+    "license_access": "MIT / LGPL-2.1+ with GPL modules / GPL (libx264 build)",
+    "destination": "<deps>/uploads, <deps>/cache, <deps>/src, <deps>/frozen",
+    "host_backend": "per script",
+    "conversion_inputs": "Homebrew (target) or hash-pinned Ubuntu noble headers (sandbox)",
+    "transitive": "see docs/plan/runtime-profile.json#/planned/mlt/build_dependencies_from_debian",
+    "interruption": "stages are stamped; a failed stage leaves no stamp"
+   }
+  ]
+ }
+}

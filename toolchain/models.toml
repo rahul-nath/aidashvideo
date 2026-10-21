@@ -1,0 +1,45 @@
+# Model assets used by the optional analysis providers (docs/plan/provider-manifest.json).
+#
+# Assets live under .deps/models (never committed). Hugging Face repositories are admitted
+# into an ISOLATED hub cache at .deps/models/hf-hub so providers load them with
+# HF_HUB_OFFLINE=1 and never read or swap the user's shared ~/.cache/huggingface.
+#
+# Every asset is operator-supplied: `aidashvideo-models admit <id> <local-dir-or-file>`.
+# Nothing is downloaded by this repository. `sha256 = ""` means the upstream hash is not
+# pinned yet; admission records observed hashes in .deps/models/admissions.json.
+
+schema = "aidashvideo.models/2"
+
+[[asset]]
+id = "sam31-mlx"
+profile = "sam31-mlx"
+kind = "hf-repo"
+repo_id = "mlx-community/sam3.1-bf16"
+# mlx-vlm load_model(path) needs config.json + *.safetensors; Sam31Processor.from_pretrained
+# needs the processor/tokenizer json files in the same folder (recorded at admission).
+required_files = ["config.json", "model.safetensors"]
+license = "SAM License (Meta) - community MLX conversion; confirm license file in the repository"
+upstream = "https://huggingface.co/mlx-community/sam3.1-bf16"
+consumer = "aidashvideo.analysis.masks.Sam31MlxBackend (mlx-vlm 0.7.8 mlx_vlm.models.sam3_1 MultiplexTrackerModel)"
+
+[[asset]]
+id = "clip-tokenizer"
+profile = "sam31-mlx"
+kind = "hf-repo"
+repo_id = "openai/clip-vit-base-patch32"
+# Text-prompt tokenizer bound explicitly for the SAM 3.1 MLX profile (local_files_only);
+# only tokenizer/processor files are required, never the CLIP weights.
+required_files = ["tokenizer_config.json", "vocab.json", "merges.txt", "special_tokens_map.json", "preprocessor_config.json", "config.json"]
+license = "MIT (OpenAI CLIP tokenizer files)"
+upstream = "https://huggingface.co/openai/clip-vit-base-patch32"
+consumer = "aidashvideo.analysis.masks.Sam31MlxBackend (Sam31Processor text tokenizer)"
+
+[[asset]]
+id = "whisper-ggml-model"
+profile = "timed-speech"
+kind = "file"
+relpath = "whisper/ggml-base.en.bin"
+sha256 = ""
+license = "MIT (whisper.cpp conversion of OpenAI Whisper weights)"
+upstream = "https://huggingface.co/ggerganov/whisper.cpp (ggml-base.en.bin; operator may choose another size, recorded at admission)"
+consumer = "aidashvideo.analysis.speech.FfmpegWhisperAdapter (FFmpeg `whisper` filter, model=...)"

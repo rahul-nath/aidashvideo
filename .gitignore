@@ -291,3 +291,11 @@ __MACOSX/
 node_modules/
 playwright-report/
 blob-report/
+
+# Operator-supplied source tarballs for scripts/build_toolchain_macos.sh (hash-pinned there)
+/*.tar
+/*.tar.*
+/*.zip
+
+# Rootless toolchain, build trees, source caches and admitted model assets (never committed)
+/.deps/
