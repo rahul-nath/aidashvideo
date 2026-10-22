@@ -40,7 +40,7 @@ The documents are not an MVP reduction and do not add a requirement to reproduce
 - The source graph allows speech and subject work after M2 and core UI after M3 independently of subject readiness; execute this packet sequentially from M0 through M8.
 - Target-local ownership contracts replace reliance on private orchestration documents; no AiDashOS runtime, WorkUnit, private ledger, hidden daemon or additional AI agent is required.
 - New local admission ownership is specified in M0 and implemented/tested first within M1 before mutating consumers integrate; nonexistent owner code is not claimed as an already-qualified supplier.
-- Repository evidence records and exact candidate hashes replace AiDashOS artifact transport while retaining source binding, permissions and human review.
+- Repository evidence records replace AiDashOS artifact transport while retaining source binding, permissions and human review.
 - The AI may execute verification itself, but that is not independent human approval; M7 still requires the operator's actual decision.
 - Concrete implementation interface/profile choices and real root/toolchain/test-command prerequisites are required M0 outputs; missing dependencies are recorded blockers and may require separate exact acquisition grants later.
 

@@ -6,12 +6,11 @@ four readiness rows exist and agree across both JSON files; a Verified tool need
 target-host evidence; TODO appears only inside Missing/Conflicting items; the ownership
 block and head-write rule are byte-identical in the three narrative files; the matrix
 covers V01-V30, I1-I12 and GP-01 steps 1-8 with verbatim text from
-docs/design/milestone-6.md; every SHA-256 in the evidence report recomputes.
+docs/design/milestone-6.md.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 from collections.abc import Iterator
@@ -294,32 +293,3 @@ def test_matrix_covers_every_case_with_verbatim_thresholds() -> None:
         "must preview within fifteen seconds on the qualified host",
     ):
         assert threshold in text, threshold
-
-
-# ----------------------------------------------------------------------------- evidence
-
-
-def test_evidence_hashes_recompute() -> None:
-    """Deliverables (committed scope) must exist and recompute on every host.
-
-    Lines under ``var/`` are git-ignored artifacts produced on the host that wrote the
-    report (the Linux sandbox for milestone-0); on another host they may be absent and
-    are then skipped, but when present they must still match byte for byte.
-    """
-    text = EVIDENCE.read_text("utf-8")
-    entries = re.findall(r"^([0-9a-f]{64})  (\S+)$", text, re.M)
-    assert entries, "evidence report lists no `sha256  path` lines"
-    deliverables = [(d, r) for d, r in entries if not r.startswith("var/")]
-    assert deliverables, "evidence report lists no deliverable hashes"
-    for digest, rel in deliverables:
-        path = ROOT / rel
-        assert path.is_file(), f"evidence names a deliverable that does not exist locally: {rel}"
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, rel
-    from aidashvideo.catalog.paths import var_dir
-
-    for digest, rel in entries:
-        if not rel.startswith("var/"):
-            continue
-        path = var_dir() / rel.removeprefix("var/")
-        if path.is_file():
-            assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, rel

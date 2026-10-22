@@ -61,32 +61,38 @@ def test_ffmpeg_matches_pins_with_required_capabilities() -> None:
 
 
 def test_whisper_filter_transcribes_synthesized_speech(tmp_path: Path) -> None:
-    """Timed speech: `say` -> 16 kHz mono -> FFmpeg `whisper` filter -> JSON segments."""
+    """Timed speech: `say` (macOS) or `flite` (Linux) -> 16 kHz mono -> `whisper` filter -> JSON."""
     tools = _ffmpeg_tools()
     model = _asset_or_skip("whisper-ggml-model")
-    if shutil.which("say") is None:
-        pytest.skip("macOS `say` not available to synthesize the fixture phrase")
-    aiff = tmp_path / "speech.aiff"
     wav = tmp_path / "speech.wav"
     out = tmp_path / "whisper.json"
-    subprocess.run(["say", "-o", str(aiff), "hello golden path"], check=True, timeout=60)
+    common = ["-af", "adelay=2000|2000,apad=pad_dur=2", "-ar", "16000", "-ac", "1", str(wav)]
+    synth_tool = str(tools.ffmpeg)
+    if shutil.which("say") is not None:
+        aiff = tmp_path / "speech.aiff"
+        subprocess.run(["say", "-o", str(aiff), "hello golden path"], check=True, timeout=60)
+        synth = ["-i", str(aiff)]
+    else:
+        # Any ffmpeg with the flite filter may synthesize; transcription uses the frozen build.
+        candidates = [str(tools.ffmpeg), *(p for p in [shutil.which("ffmpeg")] if p)]
+        synth_tool = next(
+            (
+                c
+                for c in candidates
+                if " flite "
+                in subprocess.run(
+                    [c, "-hide_banner", "-filters"], capture_output=True, text=True, timeout=60
+                ).stdout
+            ),
+            "",
+        )
+        if not synth_tool:
+            pytest.skip(
+                "no offline speech synthesizer (macOS `say` or FFmpeg `flite`) on this host"
+            )
+        synth = ["-f", "lavfi", "-i", "flite=text='hello golden path':voice=slt"]
     subprocess.run(
-        [
-            str(tools.ffmpeg),
-            "-hide_banner",
-            "-loglevel",
-            "error",
-            "-y",
-            "-i",
-            str(aiff),
-            "-af",
-            "adelay=2000|2000,apad=pad_dur=2",
-            "-ar",
-            "16000",
-            "-ac",
-            "1",
-            str(wav),
-        ],
+        [synth_tool, "-hide_banner", "-loglevel", "error", "-y", *synth, *common],
         check=True,
         timeout=60,
     )

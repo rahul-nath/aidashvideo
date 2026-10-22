@@ -5,9 +5,9 @@ description = "Open-source, AI-directed local video editor (MLT timeline, FFmpeg
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-# Target runs CPython 3.14 (.python-version); 3.12 is admitted so the Linux sandbox (no interpreter
-# downloads) can run the same code: `UV_PYTHON=3.12 uv sync --locked`.
-requires-python = ">=3.12,<3.15"
+# CPython 3.14 everywhere (.python-version): the target's uv-managed 3.14.7 and the Linux sandbox's
+# /opt/uv-python 3.14.7 (scripts/build_frozen_toolchain.sh can build one from source as a fallback).
+requires-python = ">=3.14,<3.15"
 # Core boot and project inspection use the standard library only (I10, V14):
 # every provider lives in an extra and is imported lazily by its adapter.
 dependencies = []
@@ -30,6 +30,7 @@ aidashvideo-models = "aidashvideo.catalog.models:main"
 [dependency-groups]
 dev = [
     "pytest==9.1.1",
+    "hypothesis==6.170.2",
     "ruff==0.17.0",
     "pyright[nodejs]==1.1.414",
     # Used by scripts/build_frozen_toolchain.sh (Linux sandbox rootless toolchain RUNPATHs).
@@ -54,7 +55,7 @@ python-preference = "managed"
 [tool.ruff]
 line-length = 100
 extend-exclude = [".deps", "var"]
-target-version = "py312"  # lowest supported interpreter (sandbox); target runs 3.14
+target-version = "py314"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
@@ -62,7 +63,7 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 
 [tool.pyright]
 include = ["src", "tests", "scripts"]
-pythonVersion = "3.12"  # lowest supported interpreter; nothing 3.13+-only may enter
+pythonVersion = "3.14"
 typeCheckingMode = "strict"
 venvPath = "."
 venv = ".venv"

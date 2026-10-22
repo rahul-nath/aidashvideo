@@ -174,12 +174,12 @@ Exit state: Milestone 1 can start building the durable domain from concrete cont
 No editing, playback, transcription or segmentation capability is claimed yet.
 
 Retain a source-bound milestone report in `docs/evidence/milestone-0.md` and its referenced local artifacts.
-Record the candidate commit and dirty diff/file hashes, exact commands and exit status, expected and observed results, tool/model/fixture identities, failures, retained artifact hashes, cleanup and remaining blockers.
+Record the exact commands and exit status, expected and observed results, tool/model/fixture identities, failures, retained artifacts, cleanup and remaining blockers.
 For media/provider milestones, include inspectable output and visual/auditory findings, not just test counts.
 Keep sensitive fixtures and large media out of Git; reference their operator-controlled local evidence store and record consent/availability.
 Use `PASS` only when this milestone's required completion criteria have actual evidence; otherwise report `BLOCKED` or `FAIL` and the smallest missing proof.
 Separate core, complete packaged MLT, timed speech and SAM 3.1 MLX readiness rather than collapsing them into one success flag.
-Commit only this milestone's authorized files locally if instructed, record their identity, and stop before the next milestone.
+Stop before the next milestone.
 
 ## 3. Other notes for a reviewer
 

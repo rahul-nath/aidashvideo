@@ -43,7 +43,7 @@ stored F32), CLIP tokenizer files, `ggml-base.en.bin`.
 ## Linux sandbox (domain, engine and speech work; no Metal)
 
 `scripts/build_frozen_toolchain.sh` builds the same identities rootlessly from the operator's
-archives plus hash-pinned Ubuntu noble headers; bindings target the sandbox's CPython 3.12. The
+archives plus hash-pinned Ubuntu noble headers; bindings target CPython 3.14.7 there too. The
 `sam31-mlx` extra cannot be installed there (darwin-only markers) and nothing substitutes for
 it. Sandbox evidence is labelled with its host and never promoted to target evidence
 ([evidence/milestone-0-sandbox-2026-10-18.md](evidence/milestone-0-sandbox-2026-10-18.md)).

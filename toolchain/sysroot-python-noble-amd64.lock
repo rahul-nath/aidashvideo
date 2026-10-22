@@ -1,0 +1,11 @@
+# Pinned Ubuntu 24.04 (noble) amd64 headers for building CPython 3.14 in the Linux sandbox
+# (ssl, ffi, sqlite3, readline, ncurses, gdbm, uuid). Extracted into .deps/sysroot by
+# scripts/build_frozen_toolchain.sh (stage python).
+# package version size sha256 pool-path
+libgdbm-compat-dev 1.23-5.1build1 6796 f354e8a064f52076543df385a9d0cdf3035fd609c6630f8bae500a878673dc31 pool/main/g/gdbm/libgdbm-compat-dev_1.23-5.1build1_amd64.deb
+libgdbm-dev 1.23-5.1build1 116160 234cef5097ae395b1bfc1cf9b4c95d6a433013124fcb43bfc0170a605bc8d6e4 pool/main/g/gdbm/libgdbm-dev_1.23-5.1build1_amd64.deb
+libncurses-dev 6.4+20240113-1ubuntu2.2 384098 2c32ce182e90e6636ddb037ba2810cace9e1f076b13fac89034277d8ba943c38 pool/main/n/ncurses/libncurses-dev_6.4+20240113-1ubuntu2.2_amd64.deb
+libncurses6 6.4+20240113-1ubuntu2.2 111902 59e8527dfd14473393960bfb7c69566f1ad9d576423421dcb8b8dcdbb3e7fca1 pool/main/n/ncurses/libncurses6_6.4+20240113-1ubuntu2.2_amd64.deb
+libreadline-dev 8.2-4build1 167336 7298fb8ba3b779cead0c908c8c7a572ff6e271239527d2de5e0f59786f136613 pool/main/r/readline/libreadline-dev_8.2-4build1_amd64.deb
+libsqlite3-dev 3.45.1-1ubuntu2.8 910716 61e688e7ced1c6f7c0b66721e46fd996f891489654dbf382daa98e17ee3ae192 pool/main/s/sqlite3/libsqlite3-dev_3.45.1-1ubuntu2.8_amd64.deb
+libssl-dev 3.0.13-0ubuntu3.16 2408684 2b4734df0475e305ac03abb0a2cc5659651ed37ef02d967a1c4033a154cf714b pool/main/o/openssl/libssl-dev_3.0.13-0ubuntu3.16_amd64.deb

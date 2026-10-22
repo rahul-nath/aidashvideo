@@ -4,7 +4,7 @@
 > [milestone-0.md](milestone-0.md) (target host, revised design, 2026-10-21). The hash listings
 > below describe the deliverables **as they were at that freeze**; several files have since been
 > revised or removed (torch extra, dev-sandbox-linux profile, digest pins) and are not expected to
-> recompute. Sandbox observations never count as target-host evidence.
+> Sandbox observations never count as target-host evidence.
 
 Verification below was performed by the implementing AI. It is not an independent review
 and not operator approval. Base commit `7af91bc2f25e10314ef5e56bcb6f1f3096b2ed38` ("baseline"); all Milestone 0 files are

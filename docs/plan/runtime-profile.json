@@ -26,11 +26,13 @@
  "planned": {
   "python": {
    "version": "3.14 (target, uv-managed CPython 3.14.7)",
-   "sandbox": "3.12 (system CPython 3.12.3); code must run on both; ruff/pyright target 3.12",
+   "sandbox": "3.14.7 (uv-managed CPython at /opt/uv-python in the Linux sandbox; scripts/build_frozen_toolchain.sh can build 3.14.7 from the archived source as a fallback); ruff/pyright target 3.14",
    "uv": ">=0.9.10 (target 0.12.11, sandbox 0.9.10)",
    "python_downloads": "never",
    "python_preference": "managed",
-   "run_form": "uv run --offline --no-sync"
+   "run_form": "uv run --offline --no-sync",
+   "requires_python": ">=3.14,<3.15",
+   "property_tests": "hypothesis 6.170.2 (dev group)"
   },
   "ffmpeg": {
    "version": "9.0.2",
@@ -104,7 +106,7 @@
    "version": "7.42.0",
    "reference_identity": "Debian sid mlt 7.42.0-1 (libmlt7 sha256 b7ee6e5309104a9b64600a0a817e4659e8d36dad05cca72bc4ffd30dd97e5f00, melt 42cf89823d0eff37c7098132f3109787037e41d8228cb281267c6de87aa6dc05, libmlt-data 8c1d318d607bcc32e8016f4be109155a5d542870f8964ad03b3d89a990b47d46)",
    "links_against": "FFmpeg 9.0.2 (libavcodec63)",
-   "python_bindings": "mlt7 (SWIG) built for the project interpreter: CPython 3.14 on the target, 3.12 in the sandbox",
+   "python_bindings": "mlt7 (SWIG) built for CPython 3.14 on both hosts",
    "build_dependencies_from_debian": [
     "libavformat-dev",
     "libavdevice-dev",
@@ -519,6 +521,19 @@
    "python": "3.14.7 (uv-managed)",
    "evidence": "docs/evidence/target-m1-install-2026-10-20.md",
    "rebuilt": "2026-10-21 from upstream release archives after the checkout's ignored files were reverted; capability and catalog digests identical to the 2026-10-20 build"
+  },
+  "linux-sandbox-frozen-build-2026-10-22": {
+   "recorded": "2026-10-22",
+   "host": "linux-sandbox (Ubuntu 24.04 x86_64, 4 vCPU, no GPU)",
+   "python": "3.14.7 (uv-managed, /opt/uv-python)",
+   "install_dir": "~/.local/share/aidashvideo/deps (repo .deps is a symlink to it)",
+   "recipe": "scripts/build_frozen_toolchain.sh (stages sysroot, python[skipped: host has 3.14.7], whisper, ffmpeg, frei0r, mlt, profile)",
+   "ffmpeg": "9.0.2 --enable-whisper (unchanged build)",
+   "whisper_cpp": "1.9.5 CPU",
+   "frei0r": "3.6.0 built from the operator-supplied source tree (content digest 7ff27531\u2026b97c); 163 plugins (Homebrew's build on the target has 156)",
+   "mlt": "7.42.0 rebuilt with the target's module set (movit/jackrack/ladspa off): 22 modules; mlt7 bindings for CPython 3.14.7; melt -query 43/547/56/11/293; observed catalog digest 9671b6c7a39c3152778810cc8d1a80866cf4887f15ca5e4036a967b79d155c1e (target: 4deb9c31\u20266e36b; the remaining difference is platform avfilters and the frei0r plugin subset; M2 freezes descriptors on the target)",
+   "doctor": "frozen profile -> ffmpeg Verified, mlt Verified, host Conflicting (Linux, not the Mac), core_verified true",
+   "note": "sandbox observation; never target evidence"
   }
  },
  "descriptor_schema": {
@@ -627,7 +642,7 @@
     {
      "host": "linux-sandbox",
      "ffmpeg": "9.0.2 with whisper filter",
-     "model": "ggml-base.en.bin admitted (a03779c8…f002)",
+     "model": "ggml-base.en.bin admitted (a03779c8\u2026f002)",
      "doctor": "timed-speech Verified (NOT quality-qualified)",
      "gp01": "segments quantised to the queue window; see observed.linux-sandbox-frozen-build.whisper_cpp"
     },

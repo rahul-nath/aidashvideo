@@ -6,7 +6,7 @@
 # Included (always):   tracked files and the Milestone 0 deliverables: pyproject.toml, uv.lock,
 #                      .python-version, .gitignore, README/LICENSE/NOTICE, src/, tests/, scripts/,
 #                      toolchain/, docs/ (design, plan, evidence), and .git/ when present (so the
-#                      sandbox records candidate commits against the same history).
+#                      sandbox works from the same tree).
 # Included (optional): GP-01 fixtures from <var>/fixtures/gp01 (--fixtures), the toolchain source
 #                      archives from <deps>/uploads and <deps>/cache (--sources), the whisper ggml
 #                      model from <deps>/models/whisper (--whisper).
@@ -54,8 +54,8 @@ Start here: docs/design/README.md (scope), docs/plan/ (frozen plan), docs/eviden
 docs/plan/commands.md §7 (Linux sandbox setup) and §5 (Milestone 1 commands). Next milestone: docs/design/milestone-1.md.
 
 Sandbox bootstrap:
-  UV_PYTHON=3.12 uv sync --locked                    # once online (dev group only; sam31-mlx is darwin-only)
-  UV_PYTHON=3.12 uv run --offline --no-sync pytest -q -p no:cacheprovider -m "not live"
+  uv sync --locked                                   # once online (dev group only; sam31-mlx is darwin-only)
+  uv run --offline --no-sync pytest -q -p no:cacheprovider -m "not live"
   export AIDASHVIDEO_DEPS_DIR=\$HOME/.local/share/aidashvideo/deps AIDASHVIDEO_VAR_DIR=\$HOME/.local/share/aidashvideo/var
   mkdir -p \$AIDASHVIDEO_DEPS_DIR/uploads && cp handover/sources/* \$AIDASHVIDEO_DEPS_DIR/uploads/   # if --sources was used
   scripts/build_frozen_toolchain.sh --allow-download   # optional for M1; required from M2

@@ -10,8 +10,8 @@ Readiness words come from [contracts.md §9](contracts.md#9-readiness-words).
 | --- | --- | --- |
 | Repository root = the directory containing `pyproject.toml`; every command below runs from it | `test -f pyproject.toml` | wrong directory |
 | uv >= 0.9.10 (target: 0.12.11) | `uv --version` | blocker (do not install from this repo) |
-| CPython 3.14 (target) or 3.12 (Linux sandbox); `python-downloads = "never"`; uv-managed interpreters already present are allowed (`python-preference = "managed"`) | `uv python find 3.14` (target) / `UV_PYTHON=3.12 uv python find` (sandbox) | blocker |
-| `.venv` synced from `uv.lock` (target: `--extra sam31-mlx`; sandbox: dev group only, the extra is darwin-only) | `uv sync --locked --offline --extra sam31-mlx` (target) / `UV_PYTHON=3.12 uv sync --locked --offline` (sandbox); the uv cache is populated once, online, with the operator's grant | run the online sync once with the operator's explicit acquisition grant |
+| CPython 3.14 on every host; `python-downloads = "never"`; uv-managed interpreters already present are allowed (`python-preference = "managed"`) | `uv python find 3.14` | blocker (sandbox fallback: `scripts/build_frozen_toolchain.sh python` builds 3.14.7 from the archived source) |
+| `.venv` synced from `uv.lock` (target: `--extra sam31-mlx`; sandbox: dev group only, the extra is darwin-only) | `uv sync --locked --offline --extra sam31-mlx` (target) / `uv sync --locked --offline` (sandbox); the uv cache is populated once, online, with the operator's grant | run the online sync once with the operator's explicit acquisition grant |
 | Deps dir `<deps>` = `AIDASHVIDEO_DEPS_DIR`, else the repository's `.deps/` when it holds an install, else `$XDG_DATA_HOME/aidashvideo/deps` (`~/.local/share/aidashvideo/deps`); holds `frozen/` (toolchain), `models/` (admitted assets), `uploads/`, `cache/`, `src/` | `uv run --offline --no-sync python -c "from aidashvideo.catalog.paths import deps_dir; print(deps_dir())"` | see §6 |
 | Local stores `var/fixtures/`, `var/evidence/` are git-ignored; checkouts can be ephemeral, so point `AIDASHVIDEO_VAR_DIR` at a durable location (target: `~/.local/share/aidashvideo/var`) | `echo $AIDASHVIDEO_VAR_DIR` | fixtures regenerate from [fixtures.md](fixtures.md) recipes |
 | FFmpeg 9.0.2 (+whisper) and MLT 7.42.0 in `<deps>/frozen` | `uv run --offline --no-sync aidashvideo-doctor --quick --no-providers` | `Missing`/`Conflicting`; follow §6 |
@@ -20,7 +20,7 @@ Readiness words come from [contracts.md §9](contracts.md#9-readiness-words).
 
 ```bash
 uv sync --locked --offline --extra sam31-mlx                 # target: reproduce .venv from uv.lock (cache only)
-UV_PYTHON=3.12 uv sync --locked --offline                    # Linux sandbox: dev group only
+uv sync --locked --offline                                   # Linux sandbox: dev group only (hypothesis, pytest, ruff, pyright, patchelf)
 uv run --offline --no-sync pytest -q -rA -p no:cacheprovider --strict-markers   # unit + boot isolation + plan integrity + live (live skips with the blocker when a supplier is absent)
 uv run --offline --no-sync pytest -q -p no:cacheprovider -m "not live"          # host-independent subset
 uv run --offline --no-sync ruff check . && uv run --offline --no-sync ruff format --check .
@@ -36,9 +36,8 @@ markers are added by the owning milestone: `ledger`, `timing`, `store`, `project
 `integration`, `mlt` (M2), `speech` (M3), `subjects` (M4), `chat`, `ui` (M5).
 
 Formatting and static scope: `ruff` over the repository (`.deps`, `var` excluded), target
-version py312 (lowest supported interpreter); `pyright` strict over `src`, `tests`, `scripts`
-with `pythonVersion = "3.12"` so nothing 3.13+/3.14-only enters code that must also run in the
-sandbox.
+version py314; `pyright` strict over `src`, `tests`, `scripts` with `pythonVersion = "3.14"`.
+Property tests use `hypothesis` (dev group).
 
 ## 2. Boot isolation (I10, V14)
 
@@ -52,7 +51,6 @@ uv run --offline --no-sync python -I -X importtime -c "import aidashvideo" 2>&1 
 
 ```bash
 uv run --offline --no-sync pytest -q -p no:cacheprovider -m plan
-uv run --offline --no-sync python scripts/refresh_evidence_hashes.py   # after editing any deliverable; then rerun -m plan
 ```
 
 ## 4. Model assets (operator-supplied; nothing is downloaded by the repository)
@@ -111,7 +109,7 @@ a project against the installed build at open time.
 ## 7. Linux sandbox (domain and engine work without Metal)
 
 ```bash
-UV_PYTHON=3.12 uv sync --locked --offline                            # dev group; the sam31-mlx extra is darwin-only
+uv sync --locked --offline                                           # dev group; the sam31-mlx extra is darwin-only
 scripts/build_frozen_toolchain.sh --allow-download                    # same identities, rootless, into <deps>/frozen
                                                                       # (needs the whisper.cpp / MLT archives in <deps>/uploads
                                                                       # and the hash-pinned Ubuntu noble headers from toolchain/sysroot-noble-amd64.lock)

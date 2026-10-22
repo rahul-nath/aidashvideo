@@ -3,9 +3,47 @@
 An open-source, AI-directed video editor for common Premiere-style editing workflows.
 Describe the changes you want through conversation, preview the results, and refine your edit while keeping the original media intact.
 
-Planned capabilities include cutting and rearranging footage, mixing audio, adding titles and captions, and applying subject-aware visual effects with reversible edits.
+MLT evaluates the timeline and supplies playback/export; FFmpeg supplies explicit media jobs;
+timed speech (FFmpeg's `whisper` filter) and a separately qualified SAM 3.1 MLX adapter supply
+analysis. Immutable source media plus a versioned project are the only authority.
 
-**Status:** Project initialized; the editor has not yet been implemented.
+**Status:** Milestone 0 (repository, frozen contracts and plan, toolchain installed and
+smoke-tested) is complete. Milestone 1 (durable project domain) is next; the editor is not
+implemented yet. Briefs for every milestone: [docs/design/](docs/design/README.md).
 
-**License:** [Apache 2.0](LICENSE) for this project's original code and documentation.
-Third-party components retain their respective licenses.
+## Layout
+
+| Path | Purpose |
+| --- | --- |
+| `docs/design/` | the milestone briefs (M0-M8), coverage map and manifest |
+| `docs/plan/` | the frozen plan: contracts, implementation plan, runtime profile, provider manifest, verification matrix, commands, fixtures |
+| `docs/evidence/` | per-milestone evidence reports |
+| `src/aidashvideo/` | the package; `catalog/` (toolchain/readiness/model assets) exists, the other owners land in their milestones |
+| `tests/` | boot-isolation, catalog, plan-integrity and live toolchain tests |
+| `scripts/` | toolchain builds (macOS target, Linux sandbox), fixture generation, tripwire proof, handover archive |
+| `toolchain/` | pinned profile requirements, model asset manifest, Linux sysroot locks |
+| `var/` (git-ignored) | fixtures and local evidence stores |
+
+## Setup
+
+Python 3.14 everywhere (uv-managed on the target, present in the Linux sandbox);
+`uv` never downloads an interpreter (`python-downloads = "never"`).
+
+```bash
+uv sync --locked --extra sam31-mlx          # macOS target (once, online); sandbox: uv sync --locked
+uv run --offline --no-sync aidashvideo-doctor            # readiness: Verified | Missing | Conflicting
+uv run --offline --no-sync pytest -q -rA -p no:cacheprovider --strict-markers
+uv run --offline --no-sync ruff check . && uv run --offline --no-sync pyright
+```
+
+The frozen toolchain (FFmpeg 9.0.2 built with `--enable-whisper`, whisper.cpp 1.9.5, MLT 7.42.0
+with `mlt7` bindings, frei0r 3.6.0) is built from source into `~/.local/share/aidashvideo/deps`
+by `scripts/build_toolchain_macos.sh` (target) or `scripts/build_frozen_toolchain.sh` (Linux
+sandbox). Model assets are operator-supplied and admitted with `aidashvideo-models admit`;
+nothing is downloaded by repository code. Exact commands and prerequisites:
+[docs/plan/commands.md](docs/plan/commands.md).
+
+## License
+
+[Apache 2.0](LICENSE) for this project's original code and documentation.
+Third-party components retain their respective licenses (see `docs/plan/runtime-profile.json`).

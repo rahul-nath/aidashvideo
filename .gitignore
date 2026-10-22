@@ -24,6 +24,10 @@
 # ---------------------------------------------------------------------------
 /.local/
 /docs/implementation/
+# handover staging written by scripts/make_handover_archive.sh; the archive itself lands outside the repo
+/handover/
+# local Claude helper binary that must never be committed
+/claude-hfi
 /docs/evidence/**/raw/
 /docs/evidence/local
 /tests/fixtures/generated/
@@ -298,4 +302,5 @@ blob-report/
 /*.zip
 
 # Rootless toolchain, build trees, source caches and admitted model assets (never committed)
+/.deps
 /.deps/

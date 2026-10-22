@@ -1,174 +1,175 @@
 {
-  "schema_version": 1,
-  "kind": "standalone_milestone_instruction_packet",
-  "created": "2026-10-12",
-  "execution_status": "instructions_only_no_milestone_executed",
-  "source": {
-    "repository": "local_first_agent_os",
-    "path": "docs/chat_operated_video_editor_gawd.md",
-    "repository_head_at_snapshot": "32a703fa51584ce6dc63e3c6cb19c9d6f4ae3e1a",
-    "snapshot": "working_tree",
-    "sha256": "854fa1b418b5ae248f37e1171efd9546494ef142e23ff1301f9a6f6f4654d865"
-  },
-  "target": {
-    "repository": "aidashvideo",
-    "baseline_commit": "0e0b33e4aa1e0e9e134d374fec524f3ec29d8e4c",
-    "initial_files": [
-      "README.md",
-      "LICENSE",
-      "NOTICE"
-    ]
-  },
-  "execution_order": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8
+ "schema_version": 1,
+ "kind": "standalone_milestone_instruction_packet",
+ "created": "2026-10-12",
+ "execution_status": "instructions_only_no_milestone_executed",
+ "source": {
+  "repository": "local_first_agent_os",
+  "path": "docs/chat_operated_video_editor_gawd.md",
+  "repository_head_at_snapshot": "32a703fa51584ce6dc63e3c6cb19c9d6f4ae3e1a",
+  "snapshot": "working_tree",
+  "sha256": "854fa1b418b5ae248f37e1171efd9546494ef142e23ff1301f9a6f6f4654d865"
+ },
+ "target": {
+  "repository": "aidashvideo",
+  "baseline_commit": "0e0b33e4aa1e0e9e134d374fec524f3ec29d8e4c",
+  "initial_files": [
+   "README.md",
+   "LICENSE",
+   "NOTICE"
+  ]
+ },
+ "execution_order": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+ ],
+ "source_dependencies": {
+  "0": [],
+  "1": [
+   0
   ],
-  "source_dependencies": {
-    "0": [],
-    "1": [
-      0
-    ],
-    "2": [
-      1
-    ],
-    "3": [
-      2
-    ],
-    "4": [
-      2
-    ],
-    "5": [
-      3
-    ],
-    "6": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
-    "7": [
-      6
-    ],
-    "8": [
-      7
-    ]
+  "2": [
+   1
+  ],
+  "3": [
+   2
+  ],
+  "4": [
+   2
+  ],
+  "5": [
+   3
+  ],
+  "6": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "7": [
+   6
+  ],
+  "8": [
+   7
+  ]
+ },
+ "human_approval_milestone": 7,
+ "invariant_ids": [
+  "I1",
+  "I2",
+  "I3",
+  "I4",
+  "I5",
+  "I6",
+  "I7",
+  "I8",
+  "I9",
+  "I10",
+  "I11",
+  "I12"
+ ],
+ "verification_case_ids": [
+  "V01",
+  "V02",
+  "V03",
+  "V04",
+  "V05",
+  "V06",
+  "V07",
+  "V08",
+  "V09",
+  "V10",
+  "V11",
+  "V12",
+  "V13",
+  "V14",
+  "V15",
+  "V16",
+  "V17",
+  "V18",
+  "V19",
+  "V20",
+  "V21",
+  "V22",
+  "V23",
+  "V24",
+  "V25",
+  "V26",
+  "V27",
+  "V28",
+  "V29",
+  "V30"
+ ],
+ "files": {
+  "README.md": {
+   "sha256": "5eb737c9e62041f34f1595f007be4d89ea0455138a52840d619b8fe900b72474",
+   "bytes": 6686
   },
-  "human_approval_milestone": 7,
-  "invariant_ids": [
-    "I1",
-    "I2",
-    "I3",
-    "I4",
-    "I5",
-    "I6",
-    "I7",
-    "I8",
-    "I9",
-    "I10",
-    "I11",
-    "I12"
-  ],
-  "verification_case_ids": [
-    "V01",
-    "V02",
-    "V03",
-    "V04",
-    "V05",
-    "V06",
-    "V07",
-    "V08",
-    "V09",
-    "V10",
-    "V11",
-    "V12",
-    "V13",
-    "V14",
-    "V15",
-    "V16",
-    "V17",
-    "V18",
-    "V19",
-    "V20",
-    "V21",
-    "V22",
-    "V23",
-    "V24",
-    "V25",
-    "V26",
-    "V27",
-    "V28",
-    "V29",
-    "V30"
-  ],
-  "files": {
-    "README.md": {
-      "sha256": "0dd9db1d6bb64fbfcd583cce3e42297ba0336ebe2033399410faa752fcdbd936",
-      "bytes": 6686
-    },
-    "coverage.md": {
-      "sha256": "a473298503b99d0cdec15c6515f0d2a40feafe84d24f35c9a58816d5afb5c5b1",
-      "bytes": 6578
-    },
-    "milestone-0.md": {
-      "sha256": "d42bf0e77b6ad4fd1cb6a2904ef923544b5a65485fc704a0fa9ec59f2844a068",
-      "bytes": 19817
-    },
-    "milestone-1.md": {
-      "sha256": "4b5ef9fcbd9d8e78713c74eba743e3e608c61450a98108ea2607f4d219275ca5",
-      "bytes": 9769
-    },
-    "milestone-2.md": {
-      "sha256": "894ac3bc4eae87a25618b5399a61a3bec81ac4e45a14fd455f24f7d393218116",
-      "bytes": 11531
-    },
-    "milestone-3.md": {
-      "sha256": "9fda81d4edfbf47cc59c36ee62568f5fa59ef9c7eaee8ff7e47f49420e9dc609",
-      "bytes": 7309
-    },
-    "milestone-4.md": {
-      "sha256": "799ff41aaaa690f730db832a102801d35f4d30f33dd160de2838cb0cc6dae4ac",
-      "bytes": 14167
-    },
-    "milestone-5.md": {
-      "sha256": "3972a6f7288829e7be0789a582144a357f798fb859a3a77a6e2640cf0ab1904d",
-      "bytes": 8691
-    },
-    "milestone-6.md": {
-      "sha256": "ad542ac3d72c373ac1e20803377fb150fccf5500a46dcdccea2912dbb5ed7d6b",
-      "bytes": 21819
-    },
-    "milestone-7.md": {
-      "sha256": "132d006ffcd843c14bc81639350f89ed4ecdccec2a544e91ec0fd9ee15a6f2b9",
-      "bytes": 6269
-    },
-    "milestone-8.md": {
-      "sha256": "28ce8b78385e1ee3fe7d3b66dc571a3d985d44bad4cee7deb71a16f5fb082373",
-      "bytes": 7209
-    }
+  "coverage.md": {
+   "sha256": "a473298503b99d0cdec15c6515f0d2a40feafe84d24f35c9a58816d5afb5c5b1",
+   "bytes": 6578
   },
-  "execution_contract": [
-    "minimal_repository_bootstrap_in_milestone_0",
-    "sequential_delivery_of_original_dependency_graph",
-    "target_local_owners_and_repository_evidence",
-    "local_admission_owner_built_first_in_milestone_1",
-    "implementer_verification_distinguished_from_human_approval"
-  ],
-  "subject_profile": {
-    "runtime": "mlx-vlm",
-    "backend": "Apple Silicon Metal",
-    "checkpoint_repository": "mlx-community/sam3.1-bf16",
-    "tokenizer_repository": "openai/clip-vit-base-patch32",
-    "artifact_revision_selection": "exact qualified revisions fixed in milestone 0",
-    "offline_inference": true,
-    "persistent_per_object_source_frame_masks": true
+  "milestone-0.md": {
+   "sha256": "b414f61c7a089a7180190f29ad1137a17c747716dbaf37a010c7c164386dc0b7",
+   "bytes": 19817
+  },
+  "milestone-1.md": {
+   "sha256": "2a37807b3058868a0d5cf5fed73b77743030c370af5fe6362fe0d7ea3d2811f8",
+   "bytes": 9769
+  },
+  "milestone-2.md": {
+   "sha256": "076221bf94bac21481337e6c763f834c1cc5533f712bac0ab94456f9022554af",
+   "bytes": 11531
+  },
+  "milestone-3.md": {
+   "sha256": "d1c2ae287f7bf5e27095060b2f31706c63cb9854126d322694fb3cba7e706a34",
+   "bytes": 7309
+  },
+  "milestone-4.md": {
+   "sha256": "0c522ebd9920af6c54f6b70689186f28a3f6ee343f030e446880ec451e4b0774",
+   "bytes": 14167
+  },
+  "milestone-5.md": {
+   "sha256": "bc18897f79314195a9ff2664b3d785c817da17c8b2b42a5a3047184064b84df7",
+   "bytes": 8691
+  },
+  "milestone-6.md": {
+   "sha256": "af25998e24b9c298cc786d903804ff70ff5f34ca64324766451616490bb334e8",
+   "bytes": 21819
+  },
+  "milestone-7.md": {
+   "sha256": "1de32a9f6c7a5de475d460e590cfb1547c76121d0f3c58d6f64df789cbbbab4d",
+   "bytes": 6269
+  },
+  "milestone-8.md": {
+   "sha256": "224558151a0386df2e11ab637b46bc3f7749a17bee0a87eaa44eadd944466088",
+   "bytes": 7209
   }
+ },
+ "execution_contract": [
+  "minimal_repository_bootstrap_in_milestone_0",
+  "sequential_delivery_of_original_dependency_graph",
+  "target_local_owners_and_repository_evidence",
+  "local_admission_owner_built_first_in_milestone_1",
+  "implementer_verification_distinguished_from_human_approval"
+ ],
+ "subject_profile": {
+  "runtime": "mlx-vlm",
+  "backend": "Apple Silicon Metal",
+  "checkpoint_repository": "mlx-community/sam3.1-bf16",
+  "tokenizer_repository": "openai/clip-vit-base-patch32",
+  "artifact_revision_selection": "exact qualified revisions fixed in milestone 0",
+  "offline_inference": true,
+  "persistent_per_object_source_frame_masks": true
+ },
+ "revised": "2026-10-21: candidate-commit / commit-if-instructed / hash-recompute requirements removed from every brief on operator instruction"
 }
