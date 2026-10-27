@@ -8,8 +8,11 @@ timed speech (FFmpeg's `whisper` filter) and a separately qualified SAM 3.1 MLX 
 analysis. Immutable source media plus a versioned project are the only authority.
 
 **Status:** Milestone 0 (repository, frozen contracts and plan, toolchain installed and
-smoke-tested) is complete. Milestone 1 (durable project domain) is next; the editor is not
-implemented yet. Briefs for every milestone: [docs/design/](docs/design/README.md).
+smoke-tested) and Milestone 1 (durable project domain: ledger admission, media/artifact
+store, timing/geometry algebra, semantic operations, selective undo, portable snapshots;
+evidence in [docs/evidence/milestone-1.md](docs/evidence/milestone-1.md)) are complete.
+Milestone 2 (MLT engine, previews, media jobs) is next; nothing renders yet. Briefs for
+every milestone: [docs/design/](docs/design/README.md).
 
 ## Layout
 
@@ -18,7 +21,7 @@ implemented yet. Briefs for every milestone: [docs/design/](docs/design/README.m
 | `docs/design/` | the milestone briefs (M0-M8), coverage map and manifest |
 | `docs/plan/` | the frozen plan: contracts, implementation plan, runtime profile, provider manifest, verification matrix, commands, fixtures |
 | `docs/evidence/` | per-milestone evidence reports |
-| `src/aidashvideo/` | the package; `catalog/` (toolchain/readiness/model assets) exists, the other owners land in their milestones |
+| `src/aidashvideo/` | the package: `ledger/` (canonical admission), `store/` (media/artifact store), `project/` (project domain), `catalog/` (toolchain/readiness/descriptors/model assets); the other owners land in their milestones |
 | `tests/` | boot-isolation, catalog, plan-integrity and live toolchain tests |
 | `scripts/` | toolchain builds (macOS target, Linux sandbox), fixture generation, tripwire proof, handover archive |
 | `toolchain/` | pinned profile requirements, model asset manifest, Linux sysroot locks |
@@ -34,6 +37,8 @@ uv sync --locked --extra sam31-mlx          # macOS target (once, online); sandb
 uv run --offline --no-sync aidashvideo-doctor            # readiness: Verified | Missing | Conflicting
 uv run --offline --no-sync pytest -q -rA -p no:cacheprovider --strict-markers
 uv run --offline --no-sync ruff check . && uv run --offline --no-sync pyright
+uv run --offline --no-sync pytest -q -p no:cacheprovider -m "ledger or store or timing or project"   # M1 domain suite
+uv run --offline --no-sync python -m aidashvideo.ledger inspect <project_dir>                         # read-only store inspection
 ```
 
 The frozen toolchain (FFmpeg 9.0.2 built with `--enable-whisper`, whisper.cpp 1.9.5, MLT 7.42.0

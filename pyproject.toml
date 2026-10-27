@@ -63,6 +63,9 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 
 [tool.pyright]
 include = ["src", "tests", "scripts"]
+# test helpers (tests/ledger_support.py, tests/project_support.py) are imported by tests from
+# the tests directory, which pytest puts on sys.path
+extraPaths = ["tests"]
 pythonVersion = "3.14"
 typeCheckingMode = "strict"
 venvPath = "."
@@ -77,4 +80,8 @@ markers = [
     "boot: import/boot isolation smoke tests (child interpreter with -I and tripwires)",
     "plan: consistency checks over docs/plan and the evidence report",
     "live: exercises the installed toolchain and admitted models on this host (skips with the exact blocker when absent)",
+    "ledger: admission owner against a real temporary SQLite store (M1a)",
+    "store: content-addressed media/artifact store and probe receipts (M1b)",
+    "timing: timing/geometry algebra unit and property tests (M1c)",
+    "project: project document, operations, undo, snapshot and domain integration (M1d)",
 ]
